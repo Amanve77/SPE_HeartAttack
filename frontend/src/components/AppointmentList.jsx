@@ -1,39 +1,37 @@
 import { useNavigate } from 'react-router-dom';
+import '../CSS/AppointmentList.css'; // Import the CSS
 
 const AppointmentList = ({ appointments }) => {
   const navigate = useNavigate();
 
-  // Filter only pending appointments
   const pendingAppointments = appointments.filter(appt => appt.status === 'SCHEDULED');
 
   return (
-    <div className="mt-6">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-4">🕒 Pending Appointments</h3>
+    <div className="appointment-list-container">
+      <h3 className="appointment-title">🕒 Pending Appointments</h3>
 
       {pendingAppointments.length === 0 ? (
-        <p className="text-gray-500 italic">No pending appointments at the moment.</p>
+        <p className="no-appointments">No pending appointments at the moment.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="appointment-list">
           {pendingAppointments.map((appt) => (
-            <li key={appt.id}>
-              <div style={{cursor: 'pointer' }}
-                 className="bg-white border rounded-lg shadow hover:shadow-lg hover:bg-gray-50 transition duration-200 ease-in-out p-5 cursor-pointer"
+            <li key={appt.id} className="appointment-item">
+              <div
+                className="appointment-card"
                 onClick={() => navigate(`/doctor/patient/${appt.patientId}`)}
               >
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                  <div className="mb-2 md:mb-0">
-                    <h4 className="text-lg font-bold text-blue-700">
-                      {appt.patientName || 'Unknown Patient'}
-                    </h4>
-                    <p className="text-sm text-gray-600">
+                <div className="appointment-header">
+                  <div>
+                    <h4 className="patient-name">{appt.patientName || 'Unknown Patient'}</h4>
+                    <p className="appointment-date">
                       {new Date(appt.date).toLocaleString()}
                     </p>
                   </div>
-                  <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-3 py-1 rounded-full">
+                  <span className="appointment-status">
                     Status: {appt.status}
                   </span>
                 </div>
-                <div className="mt-2 text-gray-700 text-sm">
+                <div className="appointment-reason">
                   <strong>Reason:</strong> {appt.reason}
                 </div>
               </div>

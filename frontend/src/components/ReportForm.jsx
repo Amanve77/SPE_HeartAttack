@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import API from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import '../CSS/ReportForm.css';
 
 const ReportForm = ({ appointmentId }) => {
   const [diagnosis, setDiagnosis] = useState('');
@@ -15,12 +16,9 @@ const ReportForm = ({ appointmentId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
-      // First, update the appointment status to COMPLETED
       await API.put(`/appointments/${appointmentId}/status?status=COMPLETED`);
-      
-      // Then create the report
       await API.post('/reports', {
         appointmentId,
         diagnosis,
@@ -29,7 +27,7 @@ const ReportForm = ({ appointmentId }) => {
         medications,
         lifestyleAdvice,
       });
-      
+
       setSubmitted(true);
       setTimeout(() => navigate('/doctor/dashboard'), 2000);
     } catch (err) {
@@ -40,43 +38,31 @@ const ReportForm = ({ appointmentId }) => {
 
   if (submitted) {
     return (
-      <div className="text-center mt-6">
-        <p className="text-green-600 font-semibold text-lg">✅ Report submitted successfully!</p>
+      <div className="report-success">
+        ✅ Report submitted successfully!
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-2xl mx-auto mt-6 bg-white border border-gray-300 rounded-lg shadow p-6 space-y-5"
-    >
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">📝 Submit Patient Report</h2>
+    <form onSubmit={handleSubmit} className="report-form">
+      <h2 className="form-title">📝 Submit Patient Report</h2>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative" role="alert">
-          <p>{error}</p>
-        </div>
-      )}
+      {error && <div className="form-error">{error}</div>}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Final Diagnosis</label>
+      <div className="form-group">
+        <label>Final Diagnosis</label>
         <textarea
           value={diagnosis}
           onChange={(e) => setDiagnosis(e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
           rows={3}
           required
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Risk Level</label>
-        <select
-          value={riskLevel}
-          onChange={(e) => setRiskLevel(e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
+      <div className="form-group">
+        <label>Risk Level</label>
+        <select value={riskLevel} onChange={(e) => setRiskLevel(e.target.value)}>
           <option value="LOW">Low</option>
           <option value="MODERATE">Moderate</option>
           <option value="HIGH">High</option>
@@ -84,43 +70,35 @@ const ReportForm = ({ appointmentId }) => {
         </select>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Recommended Tests</label>
+      <div className="form-group">
+        <label>Recommended Tests</label>
         <textarea
           value={recommendedTests}
           onChange={(e) => setRecommendedTests(e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
           rows={2}
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Medications Prescribed</label>
+      <div className="form-group">
+        <label>Medications Prescribed</label>
         <textarea
           value={medications}
           onChange={(e) => setMedications(e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
           rows={2}
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Lifestyle Advice</label>
+      <div className="form-group">
+        <label>Lifestyle Advice</label>
         <textarea
           value={lifestyleAdvice}
           onChange={(e) => setLifestyleAdvice(e.target.value)}
-          className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
           rows={2}
         />
       </div>
 
-      <div className="text-center">
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md shadow transition"
-        >
-          📤 Submit Report
-        </button>
+      <div className="form-actions">
+        <button type="submit">📤 Submit Report</button>
       </div>
     </form>
   );

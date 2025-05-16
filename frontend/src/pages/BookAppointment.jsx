@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import '../CSS/BookAppointment.css'; // ✅ Import CSS here
 
 const BookAppointment = () => {
   const [doctorId, setDoctorId] = useState('');
@@ -38,7 +39,6 @@ const BookAppointment = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate reason length
     if (reason.length < 10) {
       setError('Reason must be at least 10 characters long');
       return;
@@ -46,9 +46,9 @@ const BookAppointment = () => {
     
     try {
       await API.post('/appointments', {
-        patientId: parseInt(patientId), // Convert string to number
-        doctorId: parseInt(doctorId),   // Convert string to number
-        date: new Date(date).toISOString(), // Ensure proper ISO format
+        patientId: parseInt(patientId),
+        doctorId: parseInt(doctorId),
+        date: new Date(date).toISOString(),
         reason,
       });
       navigate('/patient/dashboard');
@@ -66,85 +66,59 @@ const BookAppointment = () => {
 
   return (
     <>
-      <Navbar/>
-      <div className="min-h-screen complete-padding bg-gradient-to-tr from-blue-50 to-blue-100 flex items-center justify-center px-4 py-12">
-        <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-3xl">
-          <h2 className="text-4xl font-extrabold text-center text-blue-700 mb-8">📅 Book an Appointment</h2>
+      <Navbar />
+      <div className="appointment-container">
+        <h2>Book an Appointment</h2>
 
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative">
-              <p>{error}</p>
-            </div>
-          )}
+        {error && <p className="error-message">{error}</p>}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Doctor Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Doctor</label>
-              <br/>
-              <select
-                value={doctorId}
-                onChange={(e) => setDoctorId(e.target.value)}
-                className="block w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              >
-                <option value="">-- Choose a Doctor --</option>
-                {doctors.map((doc) => (
-                  <option key={doc.id} value={doc.id}>
-                    {doc.name} - {doc.specialization} ({doc.email})
-                  </option>
-                ))}
-              </select>
-            </div>
+        <form onSubmit={handleSubmit} className="appointment-form">
+          <div>
+            <label>Select Doctor</label>
+            <select
+              value={doctorId}
+              onChange={(e) => setDoctorId(e.target.value)}
+              required
+            >
+              <option value="">-- Choose a Doctor --</option>
+              {doctors.map((doc) => (
+                <option key={doc.id} value={doc.id}>
+                  {doc.name} - {doc.specialization} ({doc.email})
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {/* Date Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Appointment Date & Time</label>
-              <br/>
-              <input
-                type="datetime-local"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="block w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
+          <div>
+            <label>Appointment Date & Time</label>
+            <input
+              type="datetime-local"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+            />
+          </div>
 
-            {/* Reason TextArea */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reason for Appointment <span className="text-xs text-gray-500">(minimum 10 characters)</span>
-              </label>
-              <br/>
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                rows={4}
-                className={`block w-full border ${
-                  reason.length < 10 && reason.length > 0 ? 'border-red-300' : 'border-gray-300'
-                } rounded-lg px-4 py-2 text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                placeholder="Briefly describe your symptoms or reason for visit (minimum 10 characters)..."
-                required
-              />
-              {reason.length < 10 && reason.length > 0 && (
-                <p className="mt-1 text-sm text-red-600">
-                  Please enter at least {10 - reason.length} more character{10 - reason.length === 1 ? '' : 's'}
-                </p>
-              )}
-            </div>
+          <div>
+            <label>Reason for Appointment (minimum 10 characters)</label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={4}
+              placeholder="Briefly describe your symptoms or reason for visit..."
+              required
+            />
+            {reason.length < 10 && reason.length > 0 && (
+              <p className="error-message">
+                Please enter at least {10 - reason.length} more character{10 - reason.length === 1 ? '' : 's'}
+              </p>
+            )}
+          </div>
 
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-black font-semibold py-3 rounded-lg transition duration-300 shadow-md"
-              >
-                Confirm Appointment
-              </button>
-            </div>
-          </form>
-        </div>
+          <button type="submit">Confirm Appointment</button>
+        </form>
       </div>
+            
     </>
   );
 };

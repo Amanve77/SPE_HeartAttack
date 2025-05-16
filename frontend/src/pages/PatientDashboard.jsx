@@ -81,7 +81,7 @@ export default function PatientDashboard() {
           <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">🩺 Patient Dashboard</h1>
           <button
             onClick={() => navigate('/book-appointment')}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow transition-colors"
+            className="bg-blue-500 hover:bg-blue-600 text-black px-6 py-2 rounded-lg shadow transition-colors"
           >
             Book New Appointment
           </button>

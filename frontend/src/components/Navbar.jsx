@@ -6,17 +6,19 @@ import logo from '../images/logo1.png';
 export default function Navbar({ showCompleted, toggleCompletedView }) {
   const navigate = useNavigate();
 
-  const doctorId = localStorage.getItem('doctorId');
-  const patientId = localStorage.getItem('patientId');
-  const isLoggedIn = doctorId || patientId;
+const doctorId = localStorage.getItem('doctorId');
+const patientId = localStorage.getItem('patientId');
+
+const isDoctor = !!doctorId;
+const isPatient = !!patientId && !doctorId; // ✅ Only true if not a doctor
+const isLoggedIn = isDoctor || isPatient;
+
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/');
   };
 
-  const isDoctor = !!doctorId;
-  const isPatient = !!patientId;
 
   return (
     <div className="bg-white shadow-sm sticky-top py-2 d-flex align-items-center justify-content-between flex-wrap border-top border-bottom z-3 px-4">

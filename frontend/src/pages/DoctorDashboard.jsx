@@ -4,7 +4,6 @@ import AppointmentList from '../components/AppointmentList';
 import PatientDetails from '../components/PatientDetails';
 import CompletedAppointments from '../components/CompletedAppointments';
 import Navbar from '../components/Navbar';
-import '../App.css'
 import { useNavigate } from 'react-router-dom';
 
 const DoctorDashboard = () => {
@@ -17,7 +16,7 @@ const DoctorDashboard = () => {
 
   useEffect(() => {
     if(!token) {
-      navigate("/")
+      navigate("/");
     } else if(!doctorId) {
       navigate("/patient/dashboard");
     }
@@ -40,7 +39,7 @@ const DoctorDashboard = () => {
   }, [showCompleted, doctorId]);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-6">
+    <div style={styles.container}>
       <Navbar
         showCompleted={showCompleted}
         toggleCompletedView={() => {
@@ -49,12 +48,12 @@ const DoctorDashboard = () => {
         }}
       />
 
-      <div className="space-y-8 complete-padding">
+      <div style={styles.content}>
         {!showCompleted ? (
           <>
             <AppointmentList appointments={appointments} onSelectPatient={setSelectedPatient} />
             {selectedPatient && (
-              <div className="mt-10">
+              <div style={styles.patientDetails}>
                 <PatientDetails patientId={selectedPatient} doctorId={doctorId} />
               </div>
             )}
@@ -65,6 +64,29 @@ const DoctorDashboard = () => {
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+    backgroundColor: '#f4f7fc',
+    minHeight: '100vh',
+    paddingTop: '20px',
+    paddingBottom: '20px',
+  },
+  content: {
+    maxWidth: '100%',
+   
+   
+    padding: '0 20px',
+  },
+  patientDetails: {
+    marginTop: '30px',
+    padding: '20px',
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+  },
 };
 
 export default DoctorDashboard;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
+import '../CSS/HeartAttackAnalyzerPage.css';
 
 const HeartAttackAnalyzerPage = () => {
   const { patientId } = useParams();
@@ -79,7 +80,6 @@ const HeartAttackAnalyzerPage = () => {
   const handleCreateReport = async () => {
     if (result) {
       try {
-        // Fetch the next scheduled appointment for this patient
         const response = await API.get(`/appointments/patient/${patientId}/next`);
         const nextAppointmentId = response.data.id;
         
@@ -104,65 +104,59 @@ const HeartAttackAnalyzerPage = () => {
   return (
     <>
       <Navbar />
-      <div className="p-6 complete-padding max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">❤️ Heart Attack Risk Analyzer</h2>
+      <div className="form-container">
+        <div className="form-card">
+          <h2 className="form-title">❤️ Heart Attack Risk Analyzer</h2>
 
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded relative">
+            <div className="error-message">
               <p>{error}</p>
             </div>
           )}
 
           {result && (
-            <div className="mb-6 p-4 border rounded-lg bg-blue-50">
-              <h3 className="text-xl font-semibold mb-2">Analysis Results</h3>
+            <div className="result-card">
+              <h3>Analysis Results</h3>
               <p><strong>Risk Level:</strong> {result.riskLevel}</p>
               <p><strong>Risk Score:</strong> {(result.riskScore * 100).toFixed(2)}%</p>
               <p><strong>Diagnosis:</strong> {result.diagnosis}</p>
-              <button
-                onClick={handleCreateReport}
-                className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
+              <button onClick={handleCreateReport} className="create-report-btn">
                 Create Report with These Results
               </button>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Age</label>
+          <form onSubmit={handleSubmit} className="analyzer-form">
+            <div className="form-grid">
+              <div className="form-field">
+                <label>Age</label>
                 <input
                   type="number"
                   name="age"
                   value={formData.age}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Sex</label>
+              <div className="form-field">
+                <label>Sex</label>
                 <select
                   name="sex"
                   value={formData.sex}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="1">Male</option>
                   <option value="0">Female</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Chest Pain Type</label>
+              <div className="form-field">
+                <label>Chest Pain Type</label>
                 <select
                   name="cp"
                   value={formData.cp}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="0">Typical Angina</option>
                   <option value="1">Atypical Angina</option>
@@ -171,50 +165,46 @@ const HeartAttackAnalyzerPage = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Resting Blood Pressure</label>
+              <div className="form-field">
+                <label>Resting Blood Pressure</label>
                 <input
                   type="number"
                   name="trtbps"
                   value={formData.trtbps}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Serum Cholesterol</label>
+              <div className="form-field">
+                <label>Serum Cholesterol</label>
                 <input
                   type="number"
                   name="chol"
                   value={formData.chol}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Fasting Blood Sugar</label>
+              <div className="form-field">
+                <label>Fasting Blood Sugar</label>
                 <select
                   name="fbs"
                   value={formData.fbs}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="0">≤ 120 mg/dl</option>
                   <option value="1">&gt; 120 mg/dl</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Resting ECG Results</label>
+              <div className="form-field">
+                <label>Resting ECG Results</label>
                 <select
                   name="restecg"
                   value={formData.restecg}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="0">Normal</option>
                   <option value="1">ST-T Wave Abnormality</option>
@@ -222,51 +212,47 @@ const HeartAttackAnalyzerPage = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Maximum Heart Rate</label>
+              <div className="form-field">
+                <label>Maximum Heart Rate</label>
                 <input
                   type="number"
                   name="thalachh"
                   value={formData.thalachh}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Exercise Induced Angina</label>
+              <div className="form-field">
+                <label>Exercise Induced Angina</label>
                 <select
                   name="exng"
                   value={formData.exng}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="0">No</option>
                   <option value="1">Yes</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">ST Depression</label>
+              <div className="form-field">
+                <label>ST Depression</label>
                 <input
                   type="number"
                   step="0.1"
                   name="oldpeak"
                   value={formData.oldpeak}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Slope of Peak Exercise ST Segment</label>
+              <div className="form-field">
+                <label>Slope of Peak Exercise ST Segment</label>
                 <select
                   name="slp"
                   value={formData.slp}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="0">Upsloping</option>
                   <option value="1">Flat</option>
@@ -274,13 +260,12 @@ const HeartAttackAnalyzerPage = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Number of Major Vessels</label>
+              <div className="form-field">
+                <label>Number of Major Vessels</label>
                 <select
                   name="caa"
                   value={formData.caa}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -289,13 +274,12 @@ const HeartAttackAnalyzerPage = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Thalassemia</label>
+              <div className="form-field">
+                <label>Thalassemia</label>
                 <select
                   name="thall"
                   value={formData.thall}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 >
                   <option value="3">Normal</option>
                   <option value="6">Fixed Defect</option>
@@ -304,13 +288,11 @@ const HeartAttackAnalyzerPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-center mt-6">
+            <div className="submit-btn-container">
               <button
                 type="submit"
                 disabled={loading}
-                className={`bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors ${
-                  loading ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className="submit-btn"
               >
                 {loading ? 'Analyzing...' : 'Analyze Risk'}
               </button>
