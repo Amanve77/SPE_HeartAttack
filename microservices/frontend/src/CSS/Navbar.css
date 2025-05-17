@@ -1,0 +1,95 @@
+/* src/components/Navbar.css */
+
+/* Main Navbar Styles */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for better separation */
+}
+
+/* Logo Styles */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #007bff; /* Brand color for logo text */
+}
+
+.logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+/* Navigation Button Styles */
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-buttons a,
+.nav-buttons button {
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Button Colors */
+.nav-buttons a {
+  background-color: #f8f9fa; /* Light gray for default links */
+  color: #007bff;
+}
+
+.nav-buttons a:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.nav-buttons button {
+  color: white;
+  border-radius: 4px;
+}
+
+.nav-buttons .btn-primary {
+  background-color: #007bff; /* Blue for patient-related actions */
+}
+
+.nav-buttons .btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.nav-buttons .btn-success {
+  background-color: #28a745; /* Green for doctor-related actions */
+}
+
+.nav-buttons .btn-success:hover {
+  background-color: #218838;
+}
+
+.nav-buttons .btn-info {
+  background-color: #17a2b8; /* Info blue for patient-related appointments */
+}
+
+.nav-buttons .btn-info:hover {
+  background-color: #117a8b;
+}
+
+.nav-buttons .btn-danger {
+  background-color: #dc3545; /* Red for logout */
+}
+
+.nav-buttons .btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* Add some padding between the navbar and the content below */

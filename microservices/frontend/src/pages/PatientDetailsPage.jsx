@@ -125,7 +125,7 @@ const PatientDetailsPage = () => {
             <h3 className="section-title">Medical Reports</h3>
             {reports.length > 0 ? (
               reports.map(report => (
-                <div key={report.id} className="report-card">
+                <div key={report.id} className="report-card2">
                   <p><strong>Date:</strong> {new Date(report.createdAt).toLocaleString()}</p>
                   <p><strong>Diagnosis:</strong> {report.diagnosis}</p>
                   <p><strong>Risk Level:</strong> {report.riskLevel}</p>

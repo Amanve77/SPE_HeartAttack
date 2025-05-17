@@ -71,7 +71,6 @@ const styles = {
     fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
     backgroundColor: '#f4f7fc',
     minHeight: '100vh',
-    paddingTop: '20px',
     paddingBottom: '20px',
   },
   content: {
