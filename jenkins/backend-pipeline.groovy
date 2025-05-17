@@ -42,7 +42,17 @@ pipeline {
             steps {
                 sh '''
                     echo "Using kubeconfig at: $KUBECONFIG"
+
+                    # Create namespace
                     kubectl apply -f k8s/namespace.yaml
+                    
+                    # Deploy MySQL first
+                    kubectl apply -f k8s/mysql/
+                    
+                    echo "Waiting for MySQL pod to be ready..."
+                    kubectl wait --for=condition=ready pod -l app=mysql -n demo-basic --timeout=120s
+                    
+                    # Deploy backend after MySQL is ready
                     kubectl apply -f k8s/backend/
                 '''
             }
