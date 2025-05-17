@@ -5,6 +5,7 @@ metadata:
 spec:
   selector:
     app: frontend
+    namespace: demo-basic
   ports:
     - protocol: TCP
       port: 3000
