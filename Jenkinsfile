@@ -9,16 +9,16 @@ pipeline {
 
                     if (commits < 2) {
                         echo "First commit detected. Triggering all jobs."
-                        build job: 'backend-pipeline'
-                        build job: 'frontend-pipeline'
-                        build job: 'ml-pipeline'
+                        build job: 'heartattack-backend'
+                        build job: 'heartattack-frontend'
+                        build job: 'heartattack-ml'
                         return
                     }
 
                     def changeLog = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim().split("\n")
-                    def backendChanged = changeLog.any { it.startsWith("backend/") }
-                    def frontendChanged = changeLog.any { it.startsWith("frontend/") }
-                    def mlChanged = changeLog.any { it.startsWith("ml_service/") }
+                    def backendChanged = changeLog.any { it.startsWith("microservices/backend/") }
+                    def frontendChanged = changeLog.any { it.startsWith("microservices/frontend/") }
+                    def mlChanged = changeLog.any { it.startsWith("microservices/ml_service/") }
 
                     echo "Changed files:\n${changeLog.join('\n')}"
                     echo "Backend changed: ${backendChanged}"
