@@ -12,6 +12,19 @@ pipeline {
             }
         }
 
+        stage('Check if backend changed') {
+            when {
+                expression {
+                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                    return changes.split('\n').any { it.startsWith('backend/') }
+                }
+            }
+            steps {
+                echo "Backend folder changed. Proceeding with build..."
+            }
+        }
+
+
         stage('Build Spring Boot') {
             steps {
                 dir('microservices/backend') {

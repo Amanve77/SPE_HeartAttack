@@ -12,6 +12,18 @@ pipeline {
             }
         }
 
+        stage('Check if ML changed') {
+            when {
+                expression {
+                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
+                    return changes.split('\n').any { it.startsWith('ml/') }
+                }
+            }
+            steps {
+                echo "ML folder changed. Proceeding with build..."
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 dir('microservices/ml-service') {
