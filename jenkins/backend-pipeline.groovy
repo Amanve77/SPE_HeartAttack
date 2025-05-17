@@ -42,6 +42,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Using kubeconfig at: $KUBECONFIG"
+                    kubectl apply -f k8s/namespace.yaml
                     kubectl apply -f k8s/backend/
                 '''
             }
