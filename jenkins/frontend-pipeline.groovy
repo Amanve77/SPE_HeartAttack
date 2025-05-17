@@ -12,18 +12,6 @@ pipeline {
             }
         }
 
-        stage('Check if frontend changed') {
-            when {
-                expression {
-                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
-                    return changes.split('\n').any { it.startsWith('frontend/') }
-                }
-            }
-            steps {
-                echo "Frontend folder changed. Proceeding with build..."
-            }
-        }
-
         stage('Build React App') {
             steps {
                 dir('microservices/frontend') {

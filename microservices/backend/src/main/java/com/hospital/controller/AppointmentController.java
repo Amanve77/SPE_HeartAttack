@@ -38,7 +38,7 @@ public class AppointmentController {
 
     @PostMapping
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    @Operation(summary = "Create new appointment", description = "Create a new appointment for patient with doctor")
+    @Operation(summary = "Create new appointment", description = "Create a new appointment for a patient with a doctor")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Appointment created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
