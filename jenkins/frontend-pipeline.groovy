@@ -40,7 +40,11 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/frontend/'
+                sh '''
+                    echo "Using kubeconfig at: $KUBECONFIG"
+                    kubectl apply -f k8s/namespace.yaml
+                    kubectl apply -f k8s/frontend/
+                '''
             }
         }
     }
