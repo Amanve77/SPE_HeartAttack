@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'amanve7/heartattack-backend-service'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'   
     }
 
     stages {
@@ -39,7 +40,10 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/backend/'
+                sh '''
+                    echo "Using kubeconfig at: $KUBECONFIG"
+                    kubectl apply -f k8s/backend/
+                '''
             }
         }
     }
