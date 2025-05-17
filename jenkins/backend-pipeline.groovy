@@ -46,6 +46,8 @@ pipeline {
                     # Create namespace
                     kubectl apply -f k8s/namespace.yaml
                     
+                    kubectl apply -f k8s/mysql/mysql-pvc.yaml
+
                     # Deploy MySQL first
                     kubectl apply -f k8s/mysql/
                     
