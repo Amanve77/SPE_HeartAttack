@@ -45,6 +45,8 @@ pipeline {
 
                     # Create namespace
                     kubectl apply -f k8s/namespace.yaml
+
+                    kubectl apply -f mysql-secret.yaml
                     
                     kubectl apply -f k8s/mysql/mysql-pvc.yaml
 
