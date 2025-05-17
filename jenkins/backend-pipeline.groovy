@@ -12,38 +12,6 @@ pipeline {
             }
         }
 
-        stage('Check for Changes in backend/') {
-            when {
-                expression {
-                    // Get list of changed files
-                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
-                    echo "Changed files:\n${changes}"
-                    return changes.split("\n").any { it.startsWith("backend/") }
-                }
-            }
-            steps {
-                echo "Changes found in backend/, continuing with backend pipeline..."
-                // Add build, test, deploy steps here
-            }
-        }
-
-        stage('Skip Pipeline') {
-            when {
-                expression {
-                    def changes = sh(script: "git diff --name-only HEAD~1 HEAD", returnStdout: true).trim()
-                    return !changes.split("\n").any { it.startsWith("backend/") }
-                }
-            }
-            steps {
-                echo "No changes in backend/. Skipping pipeline."
-                script {
-                    currentBuild.result = 'SUCCESS'
-                    exit 0
-                }
-            }
-        }
-
-
         stage('Build Spring Boot') {
             steps {
                 dir('microservices/backend') {
