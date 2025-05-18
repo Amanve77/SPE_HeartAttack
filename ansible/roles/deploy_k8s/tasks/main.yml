@@ -1,0 +1,16 @@
+---
+- name: Create namespace
+  shell: kubectl create namespace demo-basic --dry-run=client -o yaml | kubectl apply -f -
+  ignore_errors: true
+
+- name: Deploy MySQL
+  shell: kubectl apply -f ../k8s/mysql/mysql-deployment.yaml -n demo-basic
+
+- name: Deploy Backend
+  shell: kubectl apply -f ../k8s/backend/deployment.yaml -n demo-basic
+
+- name: Deploy ML Service
+  shell: kubectl apply -f ../k8s/ml/deployment.yaml -n demo-basic
+
+- name: Deploy Frontend
+  shell: kubectl apply -f ../k8s/frontend/deployment.yaml -n demo-basic

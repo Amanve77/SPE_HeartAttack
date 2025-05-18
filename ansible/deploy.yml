@@ -1,0 +1,8 @@
+---
+- name: Deploy Heart Attack Detection App
+  hosts: local
+  become: false
+  vars:
+    kube_namespace: demo-basic
+  roles:
+    - deploy_k8s

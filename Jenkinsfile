@@ -42,5 +42,16 @@ pipeline {
                 }
             }
         }
+        stage('Deploy with Ansible') {
+            steps {
+                dir('ansible') {
+                    sh '''
+                        sudo apt-get update
+                        sudo apt-get install -y ansible
+                        ansible-playbook -i inventory deploy.yml
+                    '''
+                }
+            }
+        }
     }
 }

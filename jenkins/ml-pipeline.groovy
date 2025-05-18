@@ -56,5 +56,8 @@ pipeline {
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
+        success {
+            echo 'ML pipeline completed successfully!'
+        }
     }
 }
