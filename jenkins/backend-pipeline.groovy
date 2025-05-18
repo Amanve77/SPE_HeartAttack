@@ -16,10 +16,13 @@ pipeline {
         stage('Build Spring Boot') {
             steps {
                 dir('microservices/backend') {
+                    sh 'chmod +x ./mvnw'
                     sh './mvnw clean package -DskipTests'
+                    sh 'mv target/*.jar target/app.jar'
                 }
             }
         }
+
 
         stage('Test') {
             steps {
