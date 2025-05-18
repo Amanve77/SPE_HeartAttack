@@ -17,4 +17,4 @@ spec:
         - name: frontend
           image: amanve7/heartattack-frontend-service:latest
           ports:
-            - containerPort: 80
+            - containerPort: 3000
