@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 public class HeartAttackPredictionService {
     private final RestTemplate restTemplate;
-    private final String predictionServiceUrl = "http://localhost:5000/predict";
+    private final String predictionServiceUrl = "http://192.168.49.2:32077/predict";
 
     public HeartAttackPredictionService() {
         this.restTemplate = new RestTemplate();
