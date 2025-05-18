@@ -25,7 +25,7 @@ data:
           in_cluster: true
 
     output.logstash:
-      hosts: ["logstash:5044"]
+      hosts: ["logstash.demo-basic.svc.cluster.local:5044"]
 
 
     setup.kibana:
