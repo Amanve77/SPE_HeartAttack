@@ -42,6 +42,12 @@ pipeline {
                 }
             }
         }
+        stage('Deploy ELK Stack') {
+            steps {
+                build job: 'elk-deployment'
+            }
+        }
+
         stage('Deploy with Ansible') {
             steps {
                 dir('ansible') {
