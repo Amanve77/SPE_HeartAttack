@@ -19,10 +19,7 @@ spec:
       containers:
       - name: filebeat
         image: docker.elastic.co/beats/filebeat:7.17.3
-        args: [
-          "-c", "/etc/filebeat.yml",
-          "-e",
-        ]
+        args: ["-c", "/etc/filebeat.yml", "-e"]
         securityContext:
           runAsUser: 0
         resources:
@@ -48,8 +45,8 @@ spec:
       volumes:
       - name: config
         configMap:
-          defaultMode: 0600
           name: filebeat-config
+          defaultMode: 0600
       - name: varlibdockercontainers
         hostPath:
           path: /var/lib/docker/containers
@@ -58,31 +55,4 @@ spec:
           path: /var/log
       - name: applogs
         hostPath:
-          path: /app/logs  # Mount path for app logs (you may change it)
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: filebeat-config
-  namespace: demo-basic
-data:
-  filebeat.yml: |-
-    filebeat.inputs:
-    - type: container
-      paths:
-        - /var/log/containers/*.log
-      multiline.pattern: '^\['
-      multiline.negate: true
-      multiline.match: after
-
-    - type: log
-      paths:
-        - /app/logs/*.log
-      multiline.pattern: '^\['
-      multiline.negate: true
-      multiline.match: after
-
-    output.elasticsearch:
-      hosts: ["http://elasticsearch:9200"]
-    setup.kibana:
-      host: "kibana:5601"
+          path: /app/logs

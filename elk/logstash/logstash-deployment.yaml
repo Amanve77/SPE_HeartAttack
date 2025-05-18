@@ -19,13 +19,12 @@ spec:
           ports:
             - containerPort: 5044
           volumeMounts:
-            - name: config
-              mountPath: /usr/share/logstash/pipeline/logstash.conf
-              subPath: logstash.conf
+            - name: config-volume
+              mountPath: /usr/share/logstash/pipeline/
       volumes:
-        - name: config
+        - name: config-volume
           configMap:
-            name: logstash-config
+            name: logstash-pipeline
 ---
 apiVersion: v1
 kind: Service
@@ -36,6 +35,7 @@ spec:
   selector:
     app: logstash
   ports:
-    - protocol: TCP
+    - name: beats
+      protocol: TCP
       port: 5044
       targetPort: 5044
