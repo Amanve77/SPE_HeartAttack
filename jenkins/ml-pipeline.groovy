@@ -9,21 +9,17 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git 'https://github.com/Amanve77/SPE_HeartAttack.git'
             }
         }
 
-        // stage('Install Dependencies') {
-        //     steps {
-        //         dir('microservices/ml-service') {
-        //             sh '''
-        //                 python3 -m venv venv
-        //                 . venv/bin/activate
-        //                 pip install -r requirements.txt
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('Install Dependencies') {
+            steps {
+                dir('microservices/ml-service') {
+                    sh 'pip install -r requirements.txt'
+                }
+            }
+        }
         // stage('Test') {
         //     steps {
         //         dir('microservices/ml-service') {

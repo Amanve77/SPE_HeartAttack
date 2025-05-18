@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git 'https://github.com/Amanve77/SPE_HeartAttack.git'
             }
         }
 
