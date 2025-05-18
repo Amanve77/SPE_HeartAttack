@@ -13,17 +13,17 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                dir('microservices/ml-service') {
-                    sh '''
-                        python3 -m venv venv
-                        . venv/bin/activate
-                        pip install -r requirements.txt
-                    '''
-                }
-            }
-        }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         dir('microservices/ml-service') {
+        //             sh '''
+        //                 python3 -m venv venv
+        //                 . venv/bin/activate
+        //                 pip install -r requirements.txt
+        //             '''
+        //         }
+        //     }
+        // }
         // stage('Test') {
         //     steps {
         //         dir('microservices/ml-service') {
