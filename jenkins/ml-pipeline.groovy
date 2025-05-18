@@ -27,7 +27,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -55,11 +55,6 @@ pipeline {
                 body: "Something is wrong with ${env.BUILD_URL}",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
-        }
-        always {
-            dir('microservices/ml-service') {
-                sh 'rm -rf venv'
-            }
         }
     }
 }
