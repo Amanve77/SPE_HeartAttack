@@ -24,31 +24,29 @@ pipeline {
                 }
             }
         }
-        '''
-        stage('Test') {
-            steps {
-                dir('microservices/ml-service') {
-                    sh ''''''
-                        . venv/bin/activate
-                        pytest --junitxml=test-results/junit.xml --cov=. --cov-report=html
-                    ''''''
-                }
-            }
-            post {
-                always {
-                    junit 'microservices/ml-service/test-results/junit.xml'
-                    publishHTML(target: [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: true,
-                        reportDir: 'microservices/ml-service/htmlcov',
-                        reportFiles: 'index.html',
-                        reportName: 'ML Service Coverage Report'
-                    ])
-                }
-            }
-        }
-        '''
+        // stage('Test') {
+        //     steps {
+        //         dir('microservices/ml-service') {
+        //             sh '''
+        //                 . venv/bin/activate
+        //                 pytest --junitxml=test-results/junit.xml --cov=. --cov-report=html
+        //             '''
+        //         }
+        //     }
+        //     post {
+        //         always {
+        //             junit 'microservices/ml-service/test-results/junit.xml'
+        //             publishHTML(target: [
+        //                 allowMissing: false,
+        //                 alwaysLinkToLastBuild: false,
+        //                 keepAll: true,
+        //                 reportDir: 'microservices/ml-service/htmlcov',
+        //                 reportFiles: 'index.html',
+        //                 reportName: 'ML Service Coverage Report'
+        //             ])
+        //         }
+        //     }
+        // }
         stage('Docker Build & Push') {
             steps {
                 dir('microservices/ml-service') {

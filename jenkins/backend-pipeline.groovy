@@ -78,5 +78,11 @@ pipeline {
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
+        success {
+            echo 'Backend pipeline completed successfully!'
+        }
+        always {
+            cleanWs()
+        }
     }
 }
