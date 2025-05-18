@@ -1,5 +1,6 @@
 package com.hospital.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hospital.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
@@ -25,6 +26,7 @@ public class LoginRequest {
     @Pattern(regexp = "^(DOCTOR|PATIENT)$", message = "Role must be either 'DOCTOR' or 'PATIENT'")
     private String role;
 
+    @JsonIgnore
     public User.Role getRoleEnum() {
         return User.Role.valueOf(role);
     }

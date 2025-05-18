@@ -1,11 +1,15 @@
 package com.hospital.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import lombok.Data;
 
 @Data
 public class HeartAttackPredictionRequest {
     @NotNull
+    @Min(value = 0, message = "Age must be greater than or equal to 0")
+    @Max(value = 120, message = "Age must be less than or equal to 120")
     private Integer age;
     
     @NotNull

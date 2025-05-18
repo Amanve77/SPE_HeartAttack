@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomUserDetailsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.security</a> &gt; <span class="el_source">CustomUserDetailsService.java</span></div><h1>CustomUserDetailsService.java</h1><pre class="source lang-java linenums">package com.hospital.security;
+
+import com.hospital.model.Doctor;
+import com.hospital.model.Patient;
+import com.hospital.model.User;
+import com.hospital.repository.DoctorRepository;
+import com.hospital.repository.PatientRepository;
+import com.hospital.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+    private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository,
+                                  DoctorRepository doctorRepository,
+<span class="nc" id="L23">                                  PatientRepository patientRepository) {</span>
+<span class="nc" id="L24">        this.userRepository = userRepository;</span>
+<span class="nc" id="L25">        this.doctorRepository = doctorRepository;</span>
+<span class="nc" id="L26">        this.patientRepository = patientRepository;</span>
+<span class="nc" id="L27">    }</span>
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+<span class="nc" id="L31">        User user = userRepository.findByEmail(email)</span>
+<span class="nc" id="L32">                .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;User not found with email: &quot; + email));</span>
+
+<span class="nc" id="L34">        Long doctorId = null;</span>
+<span class="nc" id="L35">        Long patientId = null;</span>
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (user.getRole() == User.Role.DOCTOR) {</span>
+<span class="nc" id="L38">            Doctor doctor = doctorRepository.findByUser(user)</span>
+<span class="nc" id="L39">                    .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;Doctor not found for user: &quot; + email));</span>
+<span class="nc" id="L40">            doctorId = doctor.getId();</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        } else if (user.getRole() == User.Role.PATIENT) {</span>
+<span class="nc" id="L42">            Patient patient = patientRepository.findByUser(user)</span>
+<span class="nc" id="L43">                    .orElseThrow(() -&gt; new UsernameNotFoundException(&quot;Patient not found for user: &quot; + email));</span>
+<span class="nc" id="L44">            patientId = patient.getId();</span>
+        }
+
+<span class="nc" id="L47">        return new CustomUserDetails(user, doctorId, patientId);</span>
+    }
+
+    public UserDetails loadUserById(Long id) {
+<span class="nc" id="L51">        User user = userRepository.findById(id)</span>
+<span class="nc" id="L52">                .orElseThrow(() -&gt; </span>
+<span class="nc" id="L53">                    new UsernameNotFoundException(&quot;User not found with id : &quot; + id)</span>
+                );
+
+<span class="nc" id="L56">        return user;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

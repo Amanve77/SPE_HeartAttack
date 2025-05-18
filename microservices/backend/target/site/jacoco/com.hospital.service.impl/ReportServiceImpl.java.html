@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.service.impl</a> &gt; <span class="el_source">ReportServiceImpl.java</span></div><h1>ReportServiceImpl.java</h1><pre class="source lang-java linenums">package com.hospital.service.impl;
+
+import com.hospital.dto.ReportRequest;
+import com.hospital.dto.ReportResponse;
+import com.hospital.exception.BadRequestException;
+import com.hospital.exception.ResourceNotFoundException;
+import com.hospital.model.Appointment;
+import com.hospital.model.Doctor;
+import com.hospital.model.Patient;
+import com.hospital.model.Report;
+import com.hospital.repository.AppointmentRepository;
+import com.hospital.repository.DoctorRepository;
+import com.hospital.repository.PatientRepository;
+import com.hospital.repository.ReportRepository;
+import com.hospital.service.ReportService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class ReportServiceImpl implements ReportService {
+
+    private final ReportRepository reportRepository;
+    private final DoctorRepository doctorRepository;
+    private final PatientRepository patientRepository;
+    private final AppointmentRepository appointmentRepository;
+
+    public ReportServiceImpl(ReportRepository reportRepository,
+                           DoctorRepository doctorRepository,
+                           PatientRepository patientRepository,
+<span class="nc" id="L34">                           AppointmentRepository appointmentRepository) {</span>
+<span class="nc" id="L35">        this.reportRepository = reportRepository;</span>
+<span class="nc" id="L36">        this.doctorRepository = doctorRepository;</span>
+<span class="nc" id="L37">        this.patientRepository = patientRepository;</span>
+<span class="nc" id="L38">        this.appointmentRepository = appointmentRepository;</span>
+<span class="nc" id="L39">    }</span>
+
+    @Override
+    public ReportResponse createReport(ReportRequest request) {
+<span class="nc" id="L43">        Appointment appointment = appointmentRepository.findById(request.getAppointmentId())</span>
+<span class="nc" id="L44">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Appointment&quot;, &quot;id&quot;, request.getAppointmentId()));</span>
+
+<span class="nc" id="L46">        Doctor doctor = appointment.getDoctor();</span>
+<span class="nc" id="L47">        Patient patient = appointment.getPatient();</span>
+
+        // Check if appointment is completed
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if (appointment.getStatus() != Appointment.AppointmentStatus.COMPLETED) {</span>
+<span class="nc" id="L51">            throw new BadRequestException(&quot;Cannot create report for non-completed appointment&quot;);</span>
+        }
+
+        // Check if report already exists for this appointment
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (reportRepository.findByAppointmentId(appointment.getId()).isPresent()) {</span>
+<span class="nc" id="L56">            throw new BadRequestException(&quot;Report already exists for this appointment&quot;);</span>
+        }
+
+<span class="nc" id="L59">        Report report = Report.builder()</span>
+<span class="nc" id="L60">                .doctor(doctor)</span>
+<span class="nc" id="L61">                .patient(patient)</span>
+<span class="nc" id="L62">                .appointment(appointment)</span>
+<span class="nc" id="L63">                .diagnosis(request.getDiagnosis())</span>
+<span class="nc" id="L64">                .riskLevel(request.getRiskLevel())</span>
+<span class="nc" id="L65">                .recommendedTests(request.getRecommendedTests())</span>
+<span class="nc" id="L66">                .medications(request.getMedications())</span>
+<span class="nc" id="L67">                .lifestyleAdvice(request.getLifestyleAdvice())</span>
+<span class="nc" id="L68">                .build();</span>
+
+<span class="nc" id="L70">        return ReportResponse.fromReport(reportRepository.save(report));</span>
+    }
+
+    @Override
+    public ReportResponse getReport(Long id) {
+<span class="nc" id="L75">        return reportRepository.findById(id)</span>
+<span class="nc" id="L76">                .map(ReportResponse::fromReport)</span>
+<span class="nc" id="L77">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Report&quot;, &quot;id&quot;, id));</span>
+    }
+
+    @Override
+    public ReportResponse getReportByAppointment(Long appointmentId) {
+<span class="nc" id="L82">        return reportRepository.findByAppointmentId(appointmentId)</span>
+<span class="nc" id="L83">                .map(ReportResponse::fromReport)</span>
+<span class="nc" id="L84">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Report&quot;, &quot;appointmentId&quot;, appointmentId));</span>
+    }
+
+    @Override
+    public List&lt;ReportResponse&gt; getDoctorReports(Long doctorId) {
+<span class="nc" id="L89">        Doctor doctor = doctorRepository.findById(doctorId)</span>
+<span class="nc" id="L90">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Doctor&quot;, &quot;id&quot;, doctorId));</span>
+
+<span class="nc" id="L92">        return reportRepository.findByDoctor(doctor).stream()</span>
+<span class="nc" id="L93">                .map(ReportResponse::fromReport)</span>
+<span class="nc" id="L94">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public List&lt;ReportResponse&gt; getPatientReports(Long patientId) {
+<span class="nc" id="L99">        Patient patient = patientRepository.findById(patientId)</span>
+<span class="nc" id="L100">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Patient&quot;, &quot;id&quot;, patientId));</span>
+
+<span class="nc" id="L102">        return reportRepository.findByPatient(patient).stream()</span>
+<span class="nc" id="L103">                .map(ReportResponse::fromReport)</span>
+<span class="nc" id="L104">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public ReportResponse updateReport(Long id, ReportRequest request) {
+<span class="nc" id="L109">        Report report = reportRepository.findById(id)</span>
+<span class="nc" id="L110">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Report&quot;, &quot;id&quot;, id));</span>
+
+<span class="nc" id="L112">        Appointment appointment = appointmentRepository.findById(request.getAppointmentId())</span>
+<span class="nc" id="L113">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Appointment&quot;, &quot;id&quot;, request.getAppointmentId()));</span>
+
+<span class="nc" id="L115">        Doctor doctor = appointment.getDoctor();</span>
+<span class="nc" id="L116">        Patient patient = appointment.getPatient();</span>
+
+        // Check if appointment is completed
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (appointment.getStatus() != Appointment.AppointmentStatus.COMPLETED) {</span>
+<span class="nc" id="L120">            throw new BadRequestException(&quot;Cannot update report for non-completed appointment&quot;);</span>
+        }
+
+<span class="nc" id="L123">        report.setDoctor(doctor);</span>
+<span class="nc" id="L124">        report.setPatient(patient);</span>
+<span class="nc" id="L125">        report.setAppointment(appointment);</span>
+<span class="nc" id="L126">        report.setDiagnosis(request.getDiagnosis());</span>
+<span class="nc" id="L127">        report.setRiskLevel(request.getRiskLevel());</span>
+<span class="nc" id="L128">        report.setRecommendedTests(request.getRecommendedTests());</span>
+<span class="nc" id="L129">        report.setMedications(request.getMedications());</span>
+<span class="nc" id="L130">        report.setLifestyleAdvice(request.getLifestyleAdvice());</span>
+
+<span class="nc" id="L132">        return ReportResponse.fromReport(reportRepository.save(report));</span>
+    }
+
+    @Override
+    public void deleteReport(Long id) {
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (!reportRepository.existsById(id)) {</span>
+<span class="nc" id="L138">            throw new ResourceNotFoundException(&quot;Report&quot;, &quot;id&quot;, id);</span>
+        }
+<span class="nc" id="L140">        reportRepository.deleteById(id);</span>
+<span class="nc" id="L141">    }</span>
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

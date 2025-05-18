@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppointmentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.controller</a> &gt; <span class="el_source">AppointmentController.java</span></div><h1>AppointmentController.java</h1><pre class="source lang-java linenums">package com.hospital.controller;
+
+import com.hospital.dto.AppointmentRequest;
+import com.hospital.dto.AppointmentResponse;
+import com.hospital.model.Appointment.AppointmentStatus;
+import com.hospital.service.AppointmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/appointments&quot;)
+@CrossOrigin(origins = &quot;${app.cors.allowed-origins:http://localhost:3000}&quot;)
+@Tag(name = &quot;Appointments&quot;, description = &quot;Appointment management APIs&quot;)
+@SecurityRequirement(name = &quot;bearerAuth&quot;)
+public class AppointmentController {
+
+    private final AppointmentService appointmentService;
+
+<span class="fc" id="L35">    public AppointmentController(AppointmentService appointmentService) {</span>
+<span class="fc" id="L36">        this.appointmentService = appointmentService;</span>
+<span class="fc" id="L37">    }</span>
+
+    @PostMapping
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Operation(summary = &quot;Create new appointment&quot;, description = &quot;Create a new appointment for patient with doctor&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;201&quot;, description = &quot;Appointment created successfully&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Invalid input data&quot;),
+        @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Doctor or Patient not found&quot;),
+        @ApiResponse(responseCode = &quot;409&quot;, description = &quot;Doctor is not available at the requested time&quot;)
+    })
+    @PreAuthorize(&quot;hasRole('PATIENT')&quot;)
+    public ResponseEntity&lt;AppointmentResponse&gt; createAppointment(@Valid @RequestBody AppointmentRequest request) {
+<span class="nc" id="L50">        AppointmentResponse response = appointmentService.createAppointment(request);</span>
+<span class="nc" id="L51">        return new ResponseEntity&lt;&gt;(response, HttpStatus.CREATED);</span>
+    }
+
+    @PutMapping(&quot;/{id}/status&quot;)
+    @Operation(summary = &quot;Update appointment status&quot;, description = &quot;Update the status of an existing appointment&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Status updated successfully&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Invalid status or appointment cannot be updated&quot;),
+        @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Appointment not found&quot;)
+    })
+    @PreAuthorize(&quot;hasRole('DOCTOR') and @appointmentSecurity.isDoctorOfAppointment(authentication, #id)&quot;)
+    public ResponseEntity&lt;AppointmentResponse&gt; updateAppointmentStatus(
+            @Parameter(description = &quot;Appointment ID&quot;) @PathVariable Long id,
+            @Parameter(description = &quot;New appointment status&quot;) @RequestParam AppointmentStatus status) {
+<span class="nc" id="L65">        return ResponseEntity.ok(appointmentService.updateAppointmentStatus(id, status));</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    @Cacheable(value = &quot;appointments&quot;, key = &quot;#id&quot;)
+    @Operation(summary = &quot;Get appointment by ID&quot;, description = &quot;Retrieve appointment details by its ID&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Appointment found&quot;),
+        @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Appointment not found&quot;)
+    })
+    @PreAuthorize(&quot;hasAnyRole('DOCTOR', 'PATIENT') and @appointmentSecurity.canAccessAppointment(authentication, #id)&quot;)
+    public ResponseEntity&lt;AppointmentResponse&gt; getAppointment(@PathVariable Long id) {
+<span class="nc" id="L77">        return ResponseEntity.ok(appointmentService.getAppointment(id));</span>
+    }
+
+    @GetMapping(&quot;/doctor/{doctorId}&quot;)
+    @Operation(summary = &quot;Get doctor's appointments&quot;, description = &quot;Retrieve all appointments for a specific doctor, optionally filtered by status&quot;)
+    @PreAuthorize(&quot;hasRole('DOCTOR') and @appointmentSecurity.isCurrentDoctor(authentication, #doctorId)&quot;)
+    public ResponseEntity&lt;List&lt;AppointmentResponse&gt;&gt; getDoctorAppointments(
+            @Parameter(description = &quot;Doctor ID&quot;) @PathVariable Long doctorId,
+            @Parameter(description = &quot;Filter by appointment status&quot;) @RequestParam(required = false) AppointmentStatus status) {
+<span class="fc" id="L86">        return ResponseEntity.ok(appointmentService.getDoctorAppointments(doctorId, status));</span>
+    }
+
+    @GetMapping(&quot;/patient/{patientId}&quot;)
+    @Operation(summary = &quot;Get patient's appointments&quot;, description = &quot;Retrieve all appointments for a specific patient&quot;)
+    @PreAuthorize(&quot;hasRole('PATIENT') and @appointmentSecurity.isCurrentPatient(authentication, #patientId)&quot;)
+    public ResponseEntity&lt;List&lt;AppointmentResponse&gt;&gt; getPatientAppointments(
+            @Parameter(description = &quot;Patient ID&quot;) @PathVariable Long patientId) {
+<span class="fc" id="L94">        return ResponseEntity.ok(appointmentService.getPatientAppointments(patientId));</span>
+    }
+
+    @GetMapping(&quot;/doctor/{doctorId}/range&quot;)
+    @Operation(summary = &quot;Get doctor's appointments by date range&quot;, description = &quot;Retrieve doctor's appointments within a specific date range&quot;)
+    @PreAuthorize(&quot;hasRole('DOCTOR') and @appointmentSecurity.isCurrentDoctor(authentication, #doctorId)&quot;)
+    public ResponseEntity&lt;List&lt;AppointmentResponse&gt;&gt; getDoctorAppointmentsByDateRange(
+            @Parameter(description = &quot;Doctor ID&quot;) @PathVariable Long doctorId,
+            @Parameter(description = &quot;Start date and time&quot;) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @Parameter(description = &quot;End date and time&quot;) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+<span class="fc" id="L104">        return ResponseEntity.ok(appointmentService.getDoctorAppointmentsByDateRange(doctorId, start, end));</span>
+    }
+
+    @GetMapping(&quot;/patient/{patientId}/range&quot;)
+    @Operation(summary = &quot;Get patient's appointments by date range&quot;, description = &quot;Retrieve patient's appointments within a specific date range&quot;)
+    @PreAuthorize(&quot;hasRole('PATIENT') and @appointmentSecurity.isCurrentPatient(authentication, #patientId)&quot;)
+    public ResponseEntity&lt;List&lt;AppointmentResponse&gt;&gt; getPatientAppointmentsByDateRange(
+            @Parameter(description = &quot;Patient ID&quot;) @PathVariable Long patientId,
+            @Parameter(description = &quot;Start date and time&quot;) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @Parameter(description = &quot;End date and time&quot;) @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+<span class="nc" id="L114">        return ResponseEntity.ok(appointmentService.getPatientAppointmentsByDateRange(patientId, start, end));</span>
+    }
+
+    @GetMapping(&quot;/patient/{patientId}/next&quot;)
+    @Operation(summary = &quot;Get patient's next appointment&quot;, description = &quot;Retrieve the next scheduled appointment for a specific patient&quot;)
+    @PreAuthorize(&quot;hasRole('PATIENT') and @appointmentSecurity.isCurrentPatient(authentication, #patientId)&quot;)
+    public ResponseEntity&lt;AppointmentResponse&gt; getPatientNextAppointment(
+            @Parameter(description = &quot;Patient ID&quot;) @PathVariable Long patientId) {
+<span class="fc" id="L122">        return ResponseEntity.ok(appointmentService.getPatientNextAppointment(patientId));</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    @Operation(summary = &quot;Cancel appointment&quot;, description = &quot;Cancel an existing appointment&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = &quot;204&quot;, description = &quot;Appointment cancelled successfully&quot;),
+        @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Appointment not found&quot;),
+        @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Appointment cannot be cancelled&quot;)
+    })
+    @PreAuthorize(&quot;hasAnyRole('DOCTOR', 'PATIENT') and @appointmentSecurity.canAccessAppointment(authentication, #id)&quot;)
+    public ResponseEntity&lt;Void&gt; cancelAppointment(@PathVariable Long id) {
+<span class="nc" id="L134">        appointmentService.cancelAppointment(id);</span>
+<span class="nc" id="L135">        return ResponseEntity.noContent().build();</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

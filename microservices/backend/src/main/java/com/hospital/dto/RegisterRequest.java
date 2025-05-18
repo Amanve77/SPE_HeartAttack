@@ -1,5 +1,6 @@
 package com.hospital.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hospital.model.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -48,6 +49,7 @@ public class RegisterRequest {
     @Size(min = 2, max = 50, message = "Department must be between 2 and 50 characters")
     private String department;
 
+    @JsonIgnore
     public User.Role getRoleEnum() {
         return User.Role.valueOf(role);
     }

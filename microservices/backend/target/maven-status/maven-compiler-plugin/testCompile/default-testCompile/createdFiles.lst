@@ -1,0 +1,5 @@
+com/hospital/config/TestConfig.class
+com/hospital/controller/AppointmentControllerTest.class
+com/hospital/controller/HeartAttackPredictionControllerTest.class
+com/hospital/config/TestSecurityConfig.class
+com/hospital/controller/AuthControllerTest.class

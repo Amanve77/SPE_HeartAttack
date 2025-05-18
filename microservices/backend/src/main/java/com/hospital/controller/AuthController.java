@@ -3,6 +3,7 @@ package com.hospital.controller;
 import com.hospital.dto.JwtAuthResponse;
 import com.hospital.dto.LoginRequest;
 import com.hospital.dto.RegisterRequest;
+import com.hospital.exception.BadRequestException;
 import com.hospital.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,10 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Register user", description = "Register new user and return JWT token")
     public ResponseEntity<JwtAuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        return ResponseEntity.ok(authService.register(registerRequest));
+        try {
+            return ResponseEntity.ok(authService.register(registerRequest));
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 }

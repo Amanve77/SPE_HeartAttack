@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppointmentSecurity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.security</a> &gt; <span class="el_source">AppointmentSecurity.java</span></div><h1>AppointmentSecurity.java</h1><pre class="source lang-java linenums">package com.hospital.security;
+
+import com.hospital.model.User;
+import com.hospital.repository.AppointmentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+@Component(&quot;appointmentSecurity&quot;)
+public class AppointmentSecurity {
+<span class="fc" id="L12">    private static final Logger logger = LoggerFactory.getLogger(AppointmentSecurity.class);</span>
+    private final AppointmentRepository appointmentRepository;
+
+<span class="fc" id="L15">    public AppointmentSecurity(AppointmentRepository appointmentRepository) {</span>
+<span class="fc" id="L16">        this.appointmentRepository = appointmentRepository;</span>
+<span class="fc" id="L17">    }</span>
+
+    public boolean isCurrentDoctor(Authentication authentication, Long doctorId) {
+<span class="pc bpc" id="L20" title="2 of 4 branches missed.">        if (authentication != null &amp;&amp; authentication.getPrincipal() instanceof CustomUserDetails) {</span>
+<span class="fc" id="L21">            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();</span>
+<span class="fc" id="L22">            logger.debug(&quot;Checking doctor access - User Role: {}, Requested Doctor ID: {}&quot;, </span>
+<span class="fc" id="L23">                userDetails.getAuthorities().iterator().next().getAuthority(), doctorId);</span>
+            
+<span class="fc" id="L25">            Long authenticatedDoctorId = userDetails.getDoctorId();</span>
+<span class="pc bpc" id="L26" title="2 of 4 branches missed.">            boolean matches = doctorId != null &amp;&amp; doctorId.equals(authenticatedDoctorId);</span>
+            
+<span class="fc" id="L28">            logger.debug(&quot;Doctor ID comparison - User's Doctor ID: {}, Requested ID: {}, Matches: {}&quot;, </span>
+<span class="fc" id="L29">                authenticatedDoctorId, doctorId, matches);</span>
+            
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">            if (!matches) {</span>
+<span class="nc" id="L32">                logger.debug(&quot;Access denied - Doctor IDs do not match or doctor not found&quot;);</span>
+            }
+            
+<span class="fc" id="L35">            return matches;</span>
+        }
+<span class="nc" id="L37">        return false;</span>
+    }
+
+    public boolean isCurrentPatient(Authentication authentication, Long patientId) {
+<span class="pc bpc" id="L41" title="2 of 4 branches missed.">        if (authentication != null &amp;&amp; authentication.getPrincipal() instanceof CustomUserDetails) {</span>
+<span class="fc" id="L42">            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();</span>
+<span class="fc" id="L43">            logger.debug(&quot;Checking patient access - User Role: {}, Requested Patient ID: {}&quot;, </span>
+<span class="fc" id="L44">                userDetails.getAuthorities().iterator().next().getAuthority(), patientId);</span>
+            
+<span class="fc" id="L46">            Long authenticatedPatientId = userDetails.getPatientId();</span>
+<span class="pc bpc" id="L47" title="2 of 4 branches missed.">            boolean matches = patientId != null &amp;&amp; patientId.equals(authenticatedPatientId);</span>
+            
+<span class="fc" id="L49">            logger.debug(&quot;Patient ID comparison - User's Patient ID: {}, Requested ID: {}, Matches: {}&quot;, </span>
+<span class="fc" id="L50">                authenticatedPatientId, patientId, matches);</span>
+            
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">            if (!matches) {</span>
+<span class="nc" id="L53">                logger.debug(&quot;Access denied - Patient IDs do not match or patient not found&quot;);</span>
+            }
+            
+<span class="fc" id="L56">            return matches;</span>
+        }
+<span class="nc" id="L58">        return false;</span>
+    }
+
+    public boolean isDoctorOfAppointment(Authentication authentication, Long appointmentId) {
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        if (authentication != null &amp;&amp; authentication.getPrincipal() instanceof CustomUserDetails) {</span>
+<span class="nc" id="L63">            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (!userDetails.getAuthorities().iterator().next().getAuthority().equals(&quot;ROLE_DOCTOR&quot;)) {</span>
+<span class="nc" id="L65">                return false;</span>
+            }
+
+<span class="nc" id="L68">            return appointmentRepository.findById(appointmentId)</span>
+<span class="nc" id="L69">                    .map(appointment -&gt; appointment.getDoctor().getId().equals(userDetails.getDoctorId()))</span>
+<span class="nc" id="L70">                    .orElse(false);</span>
+        }
+<span class="nc" id="L72">        return false;</span>
+    }
+
+    public boolean canAccessAppointment(Authentication authentication, Long appointmentId) {
+<span class="nc bnc" id="L76" title="All 4 branches missed.">        if (authentication != null &amp;&amp; authentication.getPrincipal() instanceof CustomUserDetails) {</span>
+<span class="nc" id="L77">            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();</span>
+<span class="nc" id="L78">            String role = userDetails.getAuthorities().iterator().next().getAuthority();</span>
+            
+<span class="nc" id="L80">            return appointmentRepository.findById(appointmentId)</span>
+<span class="nc" id="L81">                    .map(appointment -&gt; {</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                        if (role.equals(&quot;ROLE_DOCTOR&quot;)) {</span>
+<span class="nc" id="L83">                            return appointment.getDoctor().getId().equals(userDetails.getDoctorId());</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                        } else if (role.equals(&quot;ROLE_PATIENT&quot;)) {</span>
+<span class="nc" id="L85">                            return appointment.getPatient().getId().equals(userDetails.getPatientId());</span>
+                        }
+<span class="nc" id="L87">                        return false;</span>
+                    })
+<span class="nc" id="L89">                    .orElse(false);</span>
+        }
+<span class="nc" id="L91">        return false;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

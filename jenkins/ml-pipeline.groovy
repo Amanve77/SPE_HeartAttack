@@ -2,48 +2,89 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'amanve7/heartattack-ml-service'
+        DOCKER_IMAGE = 'amanve7/heartattack-ml-service'
+        DOCKER_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/Amanve77/SPE_HeartAttack.git'
+                checkout scm
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 dir('microservices/ml-service') {
-                    sh 'pip install -r requirements.txt'
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install -r requirements.txt
+                    '''
                 }
             }
         }
-
-        stage('Build Docker Image') {
+        '''
+        stage('Test') {
             steps {
                 dir('microservices/ml-service') {
-                    sh 'docker build -t $IMAGE_NAME:latest .'
+                    sh ''''''
+                        . venv/bin/activate
+                        pytest --junitxml=test-results/junit.xml --cov=. --cov-report=html
+                    ''''''
+                }
+            }
+            post {
+                always {
+                    junit 'microservices/ml-service/test-results/junit.xml'
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: 'microservices/ml-service/htmlcov',
+                        reportFiles: 'index.html',
+                        reportName: 'ML Service Coverage Report'
+                    ])
                 }
             }
         }
-
-        stage('Push Docker Image') {
+        '''
+        stage('Docker Build & Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push $IMAGE_NAME:latest'
+                dir('microservices/ml-service') {
+                    script {
+                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                            def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                            customImage.push()
+                            customImage.push('latest')
+                        }
+                    }
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh '''
-                    echo "Using kubeconfig at: $KUBECONFIG"
-                    kubectl apply -f k8s/namespace.yaml
-                    kubectl apply -f k8s/ml/
-                '''
+                script {
+                    sh """
+                        kubectl set image deployment/ml-deployment ml=${DOCKER_IMAGE}:${DOCKER_TAG} -n demo-basic
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            emailext (
+                subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
+                body: "Something is wrong with ${env.BUILD_URL}",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+            )
+        }
+        always {
+            dir('microservices/ml-service') {
+                sh 'rm -rf venv'
             }
         }
     }

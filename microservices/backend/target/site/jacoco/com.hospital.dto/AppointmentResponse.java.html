@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppointmentResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.dto</a> &gt; <span class="el_source">AppointmentResponse.java</span></div><h1>AppointmentResponse.java</h1><pre class="source lang-java linenums">package com.hospital.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.hospital.model.Appointment;
+import com.hospital.model.Appointment.AppointmentStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+<span class="pc bnc" id="L13" title="All 110 branches missed.">@Data</span>
+<span class="nc" id="L14">@Builder</span>
+<span class="fc" id="L15">@NoArgsConstructor</span>
+<span class="nc" id="L16">@AllArgsConstructor</span>
+public class AppointmentResponse {
+<span class="fc" id="L18">    private Long id;</span>
+<span class="fc" id="L19">    private Long doctorId;</span>
+<span class="fc" id="L20">    private String doctorUsername;</span>
+<span class="fc" id="L21">    private String doctorName;</span>
+<span class="fc" id="L22">    private String doctorSpecialization;</span>
+<span class="fc" id="L23">    private Long patientId;</span>
+<span class="fc" id="L24">    private String patientUsername;</span>
+<span class="fc" id="L25">    private String patientName;</span>
+    
+    @JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)
+<span class="fc" id="L28">    private LocalDateTime date;</span>
+<span class="fc" id="L29">    private String reason;</span>
+<span class="fc" id="L30">    private AppointmentStatus status;</span>
+    
+    @JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)
+<span class="fc" id="L33">    private LocalDateTime createdAt;</span>
+    
+    @JsonFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)
+<span class="fc" id="L36">    private LocalDateTime updatedAt;</span>
+
+    public static AppointmentResponse fromAppointment(Appointment appointment) {
+<span class="nc" id="L39">        return AppointmentResponse.builder()</span>
+<span class="nc" id="L40">                .id(appointment.getId())</span>
+<span class="nc" id="L41">                .doctorId(appointment.getDoctor().getId())</span>
+<span class="nc" id="L42">                .doctorUsername(appointment.getDoctor().getUsername())</span>
+<span class="nc" id="L43">                .doctorName(appointment.getDoctor().getUser().getFirstName() + &quot; &quot; + appointment.getDoctor().getUser().getLastName())</span>
+<span class="nc" id="L44">                .doctorSpecialization(appointment.getDoctor().getSpecialization())</span>
+<span class="nc" id="L45">                .patientId(appointment.getPatient().getId())</span>
+<span class="nc" id="L46">                .patientUsername(appointment.getPatient().getUsername())</span>
+<span class="nc" id="L47">                .patientName(appointment.getPatient().getUser().getFirstName() + &quot; &quot; + appointment.getPatient().getUser().getLastName())</span>
+<span class="nc" id="L48">                .date(appointment.getDate())</span>
+<span class="nc" id="L49">                .reason(appointment.getReason())</span>
+<span class="nc" id="L50">                .status(appointment.getStatus())</span>
+<span class="nc" id="L51">                .createdAt(appointment.getCreatedAt())</span>
+<span class="nc" id="L52">                .updatedAt(appointment.getUpdatedAt())</span>
+<span class="nc" id="L53">                .build();</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

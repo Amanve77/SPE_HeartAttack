@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReportResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.dto</a> &gt; <span class="el_source">ReportResponse.java</span></div><h1>ReportResponse.java</h1><pre class="source lang-java linenums">package com.hospital.dto;
+
+import com.hospital.model.Report;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+<span class="nc bnc" id="L8" title="All 110 branches missed.">@Data</span>
+public class ReportResponse {
+<span class="nc" id="L10">    private Long id;</span>
+<span class="nc" id="L11">    private Long doctorId;</span>
+<span class="nc" id="L12">    private String doctorName;</span>
+<span class="nc" id="L13">    private Long patientId;</span>
+<span class="nc" id="L14">    private String patientName;</span>
+<span class="nc" id="L15">    private Long appointmentId;</span>
+<span class="nc" id="L16">    private String diagnosis;</span>
+<span class="nc" id="L17">    private String riskLevel;</span>
+<span class="nc" id="L18">    private String recommendedTests;</span>
+<span class="nc" id="L19">    private String medications;</span>
+<span class="nc" id="L20">    private String lifestyleAdvice;</span>
+<span class="nc" id="L21">    private LocalDateTime createdAt;</span>
+<span class="nc" id="L22">    private LocalDateTime updatedAt;</span>
+
+    public static ReportResponse fromReport(Report report) {
+<span class="nc" id="L25">        ReportResponse response = new ReportResponse();</span>
+<span class="nc" id="L26">        response.setId(report.getId());</span>
+<span class="nc" id="L27">        response.setDoctorId(report.getDoctor().getId());</span>
+<span class="nc" id="L28">        response.setDoctorName(report.getDoctor().getUser().getFirstName() + &quot; &quot; + report.getDoctor().getUser().getLastName());</span>
+<span class="nc" id="L29">        response.setPatientId(report.getPatient().getId());</span>
+<span class="nc" id="L30">        response.setPatientName(report.getPatient().getUser().getFirstName() + &quot; &quot; + report.getPatient().getUser().getLastName());</span>
+<span class="nc" id="L31">        response.setAppointmentId(report.getAppointment().getId());</span>
+<span class="nc" id="L32">        response.setDiagnosis(report.getDiagnosis());</span>
+<span class="nc" id="L33">        response.setRiskLevel(report.getRiskLevel().name());</span>
+<span class="nc" id="L34">        response.setRecommendedTests(report.getRecommendedTests());</span>
+<span class="nc" id="L35">        response.setMedications(report.getMedications());</span>
+<span class="nc" id="L36">        response.setLifestyleAdvice(report.getLifestyleAdvice());</span>
+<span class="nc" id="L37">        response.setCreatedAt(report.getCreatedAt());</span>
+<span class="nc" id="L38">        response.setUpdatedAt(report.getUpdatedAt());</span>
+<span class="nc" id="L39">        return response;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

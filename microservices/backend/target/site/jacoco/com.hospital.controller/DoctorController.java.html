@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DoctorController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">hospital-management</a> &gt; <a href="index.source.html" class="el_package">com.hospital.controller</a> &gt; <span class="el_source">DoctorController.java</span></div><h1>DoctorController.java</h1><pre class="source lang-java linenums">package com.hospital.controller;
+
+import com.hospital.dto.DoctorResponse;
+import com.hospital.model.Doctor;
+import com.hospital.repository.DoctorRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(&quot;/api/doctors&quot;)
+@CrossOrigin(origins = &quot;http://localhost:3000&quot;)
+public class DoctorController {
+
+    private final DoctorRepository doctorRepository;
+
+<span class="nc" id="L19">    public DoctorController(DoctorRepository doctorRepository) {</span>
+<span class="nc" id="L20">        this.doctorRepository = doctorRepository;</span>
+<span class="nc" id="L21">    }</span>
+
+    @GetMapping(&quot;/all&quot;)
+    public ResponseEntity&lt;List&lt;DoctorResponse&gt;&gt; getAllDoctors() {
+<span class="nc" id="L25">        List&lt;Doctor&gt; doctors = doctorRepository.findAll();</span>
+<span class="nc" id="L26">        List&lt;DoctorResponse&gt; response = doctors.stream()</span>
+<span class="nc" id="L27">            .map(doctor -&gt; DoctorResponse.builder()</span>
+<span class="nc" id="L28">                .id(doctor.getId())</span>
+<span class="nc" id="L29">                .name(doctor.getUser().getFirstName() + &quot; &quot; + doctor.getUser().getLastName())</span>
+<span class="nc" id="L30">                .email(doctor.getUser().getEmail())</span>
+<span class="nc" id="L31">                .specialization(doctor.getSpecialization())</span>
+<span class="nc" id="L32">                .department(doctor.getDepartment())</span>
+<span class="nc" id="L33">                .available(doctor.isAvailable())</span>
+<span class="nc" id="L34">                .build())</span>
+<span class="nc" id="L35">            .collect(Collectors.toList());</span>
+<span class="nc" id="L36">        return ResponseEntity.ok(response);</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
