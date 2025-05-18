@@ -13,20 +13,18 @@ pipeline {
             }
         }
 
-        stage('Build Spring Boot') {
-            steps {
-                dir('microservices/backend') {
-                    sh 'chmod +x ./mvnw'
-                    sh './mvnw clean package -DskipTests'
-                }
-            }
-        }
-
-
         stage('Test') {
             steps {
                 dir('microservices/backend') {
                     sh 'mvn clean test'
+                }
+            }
+        }
+
+        stage('Build Spring Boot') {
+            steps {
+                dir('microservices/backend') {
+                    sh './mvnw clean package -DskipTests'
                 }
             }
         }
