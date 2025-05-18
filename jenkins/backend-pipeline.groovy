@@ -4,22 +4,12 @@ pipeline {
     environment {
         IMAGE_NAME = 'amanve7/heartattack-backend-service'
         KUBECONFIG = '/var/lib/jenkins/.kube/config'   
-        DOCKER_IMAGE = 'amanve7/heartattack-backend-service'
-        DOCKER_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git 'https://github.com/Amanve77/SPE_HeartAttack.git'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                dir('microservices/backend') {
-                    sh 'mvn clean test'
-                }
             }
         }
 
@@ -31,17 +21,27 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Test') {
             steps {
                 dir('microservices/backend') {
-                    script {
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                            def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                            customImage.push()
-                            customImage.push('latest')
-                        }
-                    }
+                    sh 'mvn clean test'
                 }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('microservices/backend') {
+                    sh 'docker build -t $IMAGE_NAME:latest .'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push $IMAGE_NAME:latest'
             }
         }
 

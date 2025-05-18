@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'amanve7/heartattack-frontend-service'
-        DOCKER_TAG = "${BUILD_NUMBER}"
+        IMAGE_NAME = 'amanve7/heartattack-frontend-service'
     }
 
     stages {
@@ -16,7 +15,15 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('microservices/frontend') {
-                    sh 'npm ci'  // Using ci instead of install for clean installs
+                    sh 'npm ci' 
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('microservices/frontend') {
+                    sh 'npm run build'
                 }
             }
         }
@@ -41,35 +48,29 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
                 dir('microservices/frontend') {
-                    sh 'npm run build'
+                    sh 'docker build -t $IMAGE_NAME:latest .'
                 }
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Push Docker Image') {
             steps {
-                dir('microservices/frontend') {
-                    script {
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                            def customImage = docker.build("${DOCKER_IMAGE}")
-                            customImage.push("${DOCKER_TAG}")
-                            customImage.push("latest")
-                        }
-                    }
-                }
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push $IMAGE_NAME:latest'
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    sh """
-                        kubectl set image deployment/frontend-deployment frontend=${DOCKER_IMAGE}:${DOCKER_TAG} -n demo-basic
-                    """
-                }
+                sh '''
+                    echo "Using kubeconfig at: $KUBECONFIG"
+                    kubectl apply -f k8s/namespace.yaml
+                    kubectl apply -f k8s/frontend/
+                '''
             }
         }
     }

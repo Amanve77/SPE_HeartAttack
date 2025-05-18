@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'amanve7/heartattack-ml-service'
-        DOCKER_TAG = "${BUILD_NUMBER}"
+        IMAGE_NAME = 'amanve7/heartattack-ml-service'
     }
 
     stages {
@@ -20,50 +19,30 @@ pipeline {
                 }
             }
         }
-        // stage('Test') {
-        //     steps {
-        //         dir('microservices/ml-service') {
-        //             sh '''
-        //                 . venv/bin/activate
-        //                 pytest --junitxml=test-results/junit.xml --cov=. --cov-report=html
-        //             '''
-        //         }
-        //     }
-        //     post {
-        //         always {
-        //             junit 'microservices/ml-service/test-results/junit.xml'
-        //             publishHTML(target: [
-        //                 allowMissing: false,
-        //                 alwaysLinkToLastBuild: false,
-        //                 keepAll: true,
-        //                 reportDir: 'microservices/ml-service/htmlcov',
-        //                 reportFiles: 'index.html',
-        //                 reportName: 'ML Service Coverage Report'
-        //             ])
-        //         }
-        //     }
-        // }
-        stage('Docker Build & Push') {
+
+        stage('Build Docker Image') {
             steps {
                 dir('microservices/ml-service') {
-                    script {
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                            def customImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                            customImage.push()
-                            customImage.push('latest')
-                        }
-                    }
+                    sh 'docker build -t $IMAGE_NAME:latest .'
                 }
+            }
+        }
+        
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push $IMAGE_NAME:latest'
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    sh """
-                        kubectl set image deployment/ml-deployment ml=${DOCKER_IMAGE}:${DOCKER_TAG} -n demo-basic
-                    """
-                }
+                sh '''
+                    echo "Using kubeconfig at: $KUBECONFIG"
+                    kubectl apply -f k8s/namespace.yaml
+                    kubectl apply -f k8s/ml/
+                '''
             }
         }
     }
