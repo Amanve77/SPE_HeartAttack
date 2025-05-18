@@ -18,7 +18,7 @@ pipeline {
                 dir('microservices/backend') {
                     sh 'chmod +x ./mvnw'
                     sh './mvnw clean package -DskipTests'
-                    sh 'mv target/*.jar target/app.jar'
+                    sh 'mv target/*.jar target/*.jar'
                 }
             }
         }
