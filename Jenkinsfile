@@ -20,6 +20,7 @@ pipeline {
                     def frontendChanged = changeLog.any { it.startsWith("microservices/frontend/") || it.startsWith("K8s/frontend/") || it.startsWith("jenkins/frontend-pipeline.groovy")}
                     def mlChanged = changeLog.any { it.startsWith("microservices/ml-service/") || it.startsWith("K8s/ml/") || it.startsWith("jenkins/ml-pipeline.groovy")}
                     def monitoringChanged = changeLog.any { it.startsWith("monitoring/prometheus/") || it.startsWith("jenkins/monitoring-pipeline.groovy") }
+                    def grafanaChanged = changeLog.any { it.startsWith("monitoring/grafana/") || it.startsWith("jenkins/grafana-pipeline.groovy") }
 
                     echo "Changed files:\n${changeLog.join('\n')}"
                     echo "Backend changed: ${backendChanged}"
@@ -39,8 +40,12 @@ pipeline {
                     if (monitoringChanged) {
                         build job: 'heartattack-monitoring'
                     }
+                    if (grafanaChanged) {
+                        build job: 'heartattack-grafana'
+                    }
 
-                    if (!backendChanged && !frontendChanged && !mlChanged && !monitoringChanged) {
+
+                    if (!backendChanged && !frontendChanged && !mlChanged && !monitoringChanged && !grafanaChanged) {
                         echo "No relevant changes found. Skipping downstream builds."
                     }
                 }
