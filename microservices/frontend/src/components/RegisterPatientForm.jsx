@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import API from '../services/api';
 
 export default function RegisterPatientForm() {
   const [name, setName] = useState('');
@@ -16,7 +16,7 @@ export default function RegisterPatientForm() {
     setErr('');
     setSuccess('');
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', {
+      const res = await API.post('/auth/register', {
         name,
         email,
         password,
