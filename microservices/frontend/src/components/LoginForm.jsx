@@ -51,15 +51,6 @@ export default function LoginForm() {
       <div className="card p-4 shadow" style={{ minWidth: '350px' }}>
         <h3 className="text-center mb-3">Login as {role.charAt(0).toUpperCase() + role.slice(1)}</h3>
         {err && <div className="alert alert-danger">{err}</div>}
-        
-        {/* Test credentials hint */}
-        <div className="alert alert-info mb-3">
-          <small>
-            Test Credentials:<br />
-            Email: {role === 'doctor' ? 'doctor@test.com' : 'patient@test.com'}<br />
-            Password: test123
-          </small>
-        </div>
 
         <form onSubmit={handleLogin}>
           <div className="form-group mb-3">
