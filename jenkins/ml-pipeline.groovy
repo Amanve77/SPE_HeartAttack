@@ -15,7 +15,49 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('microservices/ml-service') {
-                    sh 'pip install -r requirements.txt'
+                    sh '''
+                        python -m venv venv
+                        . venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+        stage('DVC Pull Artifacts') {
+            steps {
+                dir('microservices/ml-service') {
+                    sh '''
+                        . venv/bin/activate
+                        dvc pull -v
+                    '''
+                }
+            }
+        }
+
+        stage('Model Training & Evaluation') {
+            steps {
+                dir('microservices/ml-service') {
+                    sh '''
+                        . venv/bin/activate
+                        dvc repo
+                    '''
+                }
+            }
+        }
+
+        stage('DVC Push Artifacts (if updated)') {
+            steps {
+                dir('microservices/ml-service') {
+                    sh '''
+                        . venv/bin/activate
+                        git config --global user.email "jenkins@example.com"
+                        git config --global user.name "Jenkins"
+                        dvc push
+                        git add models/*.pkl models/*.dvc
+                        git commit -m "CI: Updated model artifacts [skip ci]" || echo "No changes to commit"
+                        git push origin HEAD:master
+                    '''
                 }
             }
         }
@@ -51,13 +93,13 @@ pipeline {
     post {
         failure {
             emailext (
-                subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
-                body: "Something is wrong with ${env.BUILD_URL}",
+                subject: "ML Pipeline Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                body: "Check the build logs: ${env.BUILD_URL}",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
         success {
-            echo 'ML pipeline completed successfully!'
+            echo '✅ ML pipeline completed successfully!'
         }
     }
 }

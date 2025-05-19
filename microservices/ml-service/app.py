@@ -1,68 +1,105 @@
 from flask import Flask, request, jsonify
-import pickle
-import numpy as np
 from flask_cors import CORS
+import pickle
+import os
+from dotenv import load_dotenv
+from database import save_prediction, get_training_data
+from model_retraining import retrain_model
+
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+
+model_path="models/regmodel.pkl"
+scaler_path="models/scaler.pkl"
+
+from database import init_db
+
+@app.before_first_request
+def initialize_database():
+    logging.info("Initializing database...")
+    init_db()
+
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-# Load the model
-with open('models/regmodel.pkl', 'rb') as f:
-    model = pickle.load(f)
+def load_model():    
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    with open(scaler_path, 'rb') as f:
+        scaler = pickle.load(f)
+    return model, scaler
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = request.json
+        required_fields = ['age', 'sex', 'cp', 'trtbps', 'chol', 'fbs', 'restecg',
+                   'thalachh', 'exng', 'oldpeak', 'slp', 'caa', 'thall']
+
+        data = request.get_json()
+
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return jsonify({'error': f'Missing fields: {", ".join(missing_fields)}'}), 400
+        
+        # Extract features in the correct order
         features = [
-            data['age'],
-            data['sex'],
-            data['cp'],
-            data['trtbps'],
-            data['chol'],
-            data['fbs'],
-            data['restecg'],
-            data['thalachh'],
-            data['exng'],
-            data['oldpeak'],
-            data['slp'],
-            data['caa'],
+            data['age'], data['sex'], data['cp'],
+            data['trtbps'], data['chol'], data['fbs'],
+            data['restecg'], data['thalachh'], data['exng'],
+            data['oldpeak'], data['slp'], data['caa'],
             data['thall']
         ]
         
-        # Convert to numpy array and reshape
-        features = np.array(features).reshape(1, -1)
+        # Load model and scaler
+        model, scaler = load_model()
         
-        # Get prediction probabilities
-        prediction_proba = model.predict_proba(features)[0]
-        probability = prediction_proba[1]  # Probability of heart attack (0-1)
+        # Scale features
+        features_scaled = scaler.transform([features])
         
-        # Determine risk level
-        if probability < 0.3:
-            risk_level = "LOW"
-        elif probability < 0.6:
-            risk_level = "MODERATE"
-        elif probability < 0.8:
-            risk_level = "HIGH"
-        else:
-            risk_level = "CRITICAL"
-            
-        # Generate diagnosis text based on risk level
-        diagnosis_map = {
-            "LOW": "Patient shows low risk of heart attack. Regular check-ups recommended.",
-            "MODERATE": "Patient shows moderate risk of heart attack. Lifestyle changes and monitoring advised.",
-            "HIGH": "Patient shows high risk of heart attack. Immediate medical attention and lifestyle changes required.",
-            "CRITICAL": "Patient shows critical risk of heart attack. Urgent medical intervention needed."
-        }
+        # Make prediction
+        risk_score = float(model.predict_proba(features_scaled)[0][1])  # Get probability of class 1
+        risk_level = 'HIGH' if risk_score > 0.5 else 'LOW'
+        
+        # Save prediction to database
+        saved_prediction = save_prediction(data, risk_score, risk_level)
+        
+        logging.info("Prediction complete")
+        return jsonify({
+            'id': saved_prediction.id,
+            'risk_score': risk_score,
+            'risk_level': risk_level,
+            'timestamp': saved_prediction.timestamp.isoformat()
+        })
+        
+    except Exception as e:
+        logging.error("Prediction failed", exc_info=True)
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/retrain', methods=['POST'])
+def retrain():
+    try:
+        success, model_path = retrain_model()
+        if not success:
+            return jsonify({'error': 'Model retraining failed'}), 500
             
         return jsonify({
-            'riskScore': probability,  # Send as decimal (0-1) as frontend expects
-            'riskLevel': risk_level,
-            'diagnosis': diagnosis_map[risk_level]
+            'message': 'Model retrained successfully',
+            'model_path': model_path
         })
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000) 
