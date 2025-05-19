@@ -15,22 +15,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('microservices/ml-service') {
-                    sh '''
-                        python -m venv venv
-                        . venv/bin/activate
-                        pip install --upgrade pip
-                        pip install -r requirements.txt
-                    '''
+                    sh 'pip install -r requirements.txt'
                 }
             }
         }
         stage('DVC Pull Artifacts') {
             steps {
                 dir('microservices/ml-service') {
-                    sh '''
-                        . venv/bin/activate
-                        dvc pull -v
-                    '''
+                    sh 'dvc pull -v'
                 }
             }
         }
@@ -38,10 +30,7 @@ pipeline {
         stage('Model Training & Evaluation') {
             steps {
                 dir('microservices/ml-service') {
-                    sh '''
-                        . venv/bin/activate
-                        dvc repo
-                    '''
+                    sh 'dvc repo'
                 }
             }
         }
@@ -50,7 +39,6 @@ pipeline {
             steps {
                 dir('microservices/ml-service') {
                     sh '''
-                        . venv/bin/activate
                         git config --global user.email "jenkins@example.com"
                         git config --global user.name "Jenkins"
                         dvc push
