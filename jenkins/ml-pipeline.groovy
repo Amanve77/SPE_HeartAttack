@@ -19,13 +19,6 @@ pipeline {
                 }
             }
         }
-        stage('DVC Pull Artifacts') {
-            steps {
-                dir('microservices/ml-service') {
-                    sh 'dvc pull -v --force'
-                }
-            }
-        }
 
         stage('Model Training & Evaluation') {
             steps {
