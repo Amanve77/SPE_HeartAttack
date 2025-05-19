@@ -23,7 +23,7 @@ pipeline {
         stage('Model Training & Evaluation') {
             steps {
                 dir('microservices/ml-service') {
-                    sh 'dvc repo'
+                    sh 'python model_training.py'
                 }
             }
         }
