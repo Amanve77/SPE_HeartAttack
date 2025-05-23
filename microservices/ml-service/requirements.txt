@@ -2,10 +2,3 @@ flask==3.0.2
 scikit-learn==1.2.2
 numpy==1.24.3
 flask-cors==4.0.0 
-pymysql==1.1.0
-cryptography==42.0.5
-python-dotenv==1.0.1
-dvc==3.48.1
-pandas==2.2.1
-SQLAlchemy==2.0.27
-requests==2.31.0

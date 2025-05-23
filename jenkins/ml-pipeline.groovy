@@ -20,29 +20,6 @@ pipeline {
             }
         }
 
-        stage('Model Training & Evaluation') {
-            steps {
-                dir('microservices/ml-service') {
-                    sh 'python model_training.py'
-                }
-            }
-        }
-
-        stage('DVC Push Artifacts (if updated)') {
-            steps {
-                dir('microservices/ml-service') {
-                    sh '''
-                        git config --global user.email "jenkins@example.com"
-                        git config --global user.name "Jenkins"
-                        dvc push
-                        git add models/*.pkl models/*.dvc
-                        git commit -m "CI: Updated model artifacts [skip ci]" || echo "No changes to commit"
-                        git push origin HEAD:master
-                    '''
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 dir('microservices/ml-service') {
@@ -74,8 +51,8 @@ pipeline {
     post {
         failure {
             emailext (
-                subject: "ML Pipeline Failed: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                body: "Check the build logs: ${env.BUILD_URL}",
+                subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
+                body: "Something is wrong with ${env.BUILD_URL}",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
