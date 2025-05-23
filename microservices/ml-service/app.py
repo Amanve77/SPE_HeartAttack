@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Load the model
-with open('models/regmodel.pkl', 'rb') as f:
+with open('models/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 @app.route('/predict', methods=['POST'])
