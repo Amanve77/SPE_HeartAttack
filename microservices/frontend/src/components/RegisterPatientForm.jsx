@@ -24,16 +24,18 @@ export default function RegisterPatientForm() {
         lastName,
         email,
         password,
-        role: 'PATIENT', // Role is locked in backend too
+        role: 'PATIENT', // Role must be uppercase
       });
 
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('patientId', res.data.user.id);
-      setSuccess('Registration successful! Redirecting...');
-      setTimeout(() => navigate('/patient/dashboard'), 1500);
+      console.log('Registration response:', res.data);
+      setSuccess('Registration successful! Redirecting to login...');
+      setTimeout(() => navigate('/login/patient'), 1500);
     } catch (error) {
-      const errorMsg = error.response?.data?.error || 'Registration failed';
+      const errorMsg = error.response?.data?.message || 
+                       error.response?.data?.error || 
+                       'Registration failed';
       setErr(errorMsg);
+      console.error("Registration error:", error.response?.data);
     }
   };
 
