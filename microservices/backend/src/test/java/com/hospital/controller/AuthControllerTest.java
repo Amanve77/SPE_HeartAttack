@@ -18,13 +18,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(AuthController.class)
 @Import({TestSecurityConfig.class, TestConfig.class})
@@ -107,18 +105,14 @@ class AuthControllerTest {
 
     @Test
     void registerSuccess() throws Exception {
-        when(authService.register(any(RegisterRequest.class))).thenReturn(jwtAuthResponse);
+        doNothing().when(authService).register(any(RegisterRequest.class));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.token").value("dummy.jwt.token"))
-                .andExpect(jsonPath("$.tokenType").value("Bearer"))
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.role").value("PATIENT"));
+                .andExpect(jsonPath("$.message").value("Registration successful"));
     }
 
     @Test
@@ -134,8 +128,8 @@ class AuthControllerTest {
 
     @Test
     void registerWithExistingEmail() throws Exception {
-        when(authService.register(any(RegisterRequest.class)))
-                .thenThrow(new BadRequestException("Email already exists"));
+        doThrow(new BadRequestException("Email already exists"))
+            .when(authService).register(any(RegisterRequest.class));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
