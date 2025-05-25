@@ -34,7 +34,7 @@ public class AuthController {
     public ResponseEntity<JwtAuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
             return ResponseEntity.ok(authService.register(registerRequest));
-        } catch (IllegalArgumentException e) {
+        } catch (BadRequestException | IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
         }
     }

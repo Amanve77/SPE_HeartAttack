@@ -26,15 +26,15 @@ public class AuthController {
     @PostMapping(&quot;/login&quot;)
     @Operation(summary = &quot;Login user&quot;, description = &quot;Authenticate user and return JWT token&quot;)
     public ResponseEntity&lt;JwtAuthResponse&gt; login(@Valid @RequestBody LoginRequest loginRequest) {
-<span class="fc" id="L29">        return ResponseEntity.ok(authService.login(loginRequest));</span>
+<span class="nc" id="L29">        return ResponseEntity.ok(authService.login(loginRequest));</span>
     }
 
     @PostMapping(&quot;/register&quot;)
     @Operation(summary = &quot;Register user&quot;, description = &quot;Register new user and return JWT token&quot;)
     public ResponseEntity&lt;JwtAuthResponse&gt; register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
-<span class="fc" id="L36">            return ResponseEntity.ok(authService.register(registerRequest));</span>
-<span class="fc" id="L37">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L36">            return ResponseEntity.ok(authService.register(registerRequest));</span>
+<span class="fc" id="L37">        } catch (BadRequestException | IllegalArgumentException e) {</span>
 <span class="fc" id="L38">            throw new BadRequestException(e.getMessage());</span>
         }
     }

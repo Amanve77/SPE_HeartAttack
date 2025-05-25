@@ -11,12 +11,52 @@ export default function RegisterPatientForm() {
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Password validation
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
+    return regex.test(password);
+  };
+
+  // Email validation
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setErr('');
     setSuccess('');
+    setLoading(true);
+
+    // Validation
+    if (!validateEmail(email)) {
+      setErr('Please enter a valid email address');
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setErr('Password must be at least 8 characters long and contain at least one digit, one uppercase letter, one lowercase letter, and one special character');
+      setLoading(false);
+      return;
+    }
+
+    if (username.length < 3) {
+      setErr('Username must be at least 3 characters long');
+      setLoading(false);
+      return;
+    }
+
+    if (firstName.length < 2 || lastName.length < 2) {
+      setErr('First name and last name must be at least 2 characters long');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await API.post('/auth/register', {
         username,
@@ -24,18 +64,23 @@ export default function RegisterPatientForm() {
         lastName,
         email,
         password,
-        role: 'PATIENT', // Role must be uppercase
+        role: 'PATIENT',
       });
 
       console.log('Registration response:', res.data);
       setSuccess('Registration successful! Redirecting to login...');
-      setTimeout(() => navigate('/login/patient'), 1500);
+      
+      // Wait for 2 seconds before redirecting
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      navigate('/login/patient');
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 
-                       error.response?.data?.error || 
-                       'Registration failed';
-      setErr(errorMsg);
       console.error("Registration error:", error.response?.data);
+      const errorMsg = error.response?.data?.message || 
+                      error.response?.data?.error || 
+                      'Registration failed. Please try again.';
+      setErr(errorMsg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,30 +95,33 @@ export default function RegisterPatientForm() {
             <input
               type="text"
               className="form-control"
-              placeholder="Username"
+              placeholder="Username (min. 3 characters)"
               value={username}
               required
               onChange={(e) => setUsername(e.target.value)}
+              disabled={loading}
             />
           </div>
           <div className="form-group mb-3">
             <input
               type="text"
               className="form-control"
-              placeholder="First Name"
+              placeholder="First Name (min. 2 characters)"
               value={firstName}
               required
               onChange={(e) => setFirstName(e.target.value)}
+              disabled={loading}
             />
           </div>
           <div className="form-group mb-3">
             <input
               type="text"
               className="form-control"
-              placeholder="Last Name"
+              placeholder="Last Name (min. 2 characters)"
               value={lastName}
               required
               onChange={(e) => setLastName(e.target.value)}
+              disabled={loading}
             />
           </div>
           <div className="form-group mb-3">
@@ -84,19 +132,30 @@ export default function RegisterPatientForm() {
               value={email}
               required
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
           <div className="form-group mb-4">
             <input
               type="password"
               className="form-control"
-              placeholder="Password"
+              placeholder="Password (min. 8 chars, 1 uppercase, 1 number, 1 special)"
               value={password}
               required
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100">Register</button>
+          <button 
+            type="submit" 
+            className="btn btn-primary w-100"
+            disabled={loading}
+          >
+            {loading ? 'Registering...' : 'Register'}
+          </button>
+          <div className="text-center mt-3">
+            <p>Already have an account? <a href="/login/patient">Login here</a></p>
+          </div>
         </form>
       </div>
     </div>

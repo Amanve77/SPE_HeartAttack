@@ -6,6 +6,7 @@ import com.hospital.config.TestSecurityConfig;
 import com.hospital.dto.JwtAuthResponse;
 import com.hospital.dto.LoginRequest;
 import com.hospital.dto.RegisterRequest;
+import com.hospital.exception.BadRequestException;
 import com.hospital.model.User;
 import com.hospital.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,7 +135,7 @@ class AuthControllerTest {
     @Test
     void registerWithExistingEmail() throws Exception {
         when(authService.register(any(RegisterRequest.class)))
-                .thenThrow(new IllegalArgumentException("Email already exists"));
+                .thenThrow(new BadRequestException("Email already exists"));
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
