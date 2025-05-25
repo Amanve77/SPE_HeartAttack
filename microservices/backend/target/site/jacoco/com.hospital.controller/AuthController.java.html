@@ -11,6 +11,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Map;
+
 @RestController
 @RequestMapping(&quot;/api/auth&quot;)
 @CrossOrigin(origins = &quot;${app.cors.allowed-origins:http://localhost:3000}&quot;)
@@ -19,24 +22,21 @@ public class AuthController {
 
     private final AuthService authService;
 
-<span class="fc" id="L22">    public AuthController(AuthService authService) {</span>
-<span class="fc" id="L23">        this.authService = authService;</span>
-<span class="fc" id="L24">    }</span>
+<span class="fc" id="L25">    public AuthController(AuthService authService) {</span>
+<span class="fc" id="L26">        this.authService = authService;</span>
+<span class="fc" id="L27">    }</span>
 
     @PostMapping(&quot;/login&quot;)
     @Operation(summary = &quot;Login user&quot;, description = &quot;Authenticate user and return JWT token&quot;)
     public ResponseEntity&lt;JwtAuthResponse&gt; login(@Valid @RequestBody LoginRequest loginRequest) {
-<span class="nc" id="L29">        return ResponseEntity.ok(authService.login(loginRequest));</span>
+<span class="fc" id="L32">        return ResponseEntity.ok(authService.login(loginRequest));</span>
     }
 
     @PostMapping(&quot;/register&quot;)
-    @Operation(summary = &quot;Register user&quot;, description = &quot;Register new user and return JWT token&quot;)
-    public ResponseEntity&lt;JwtAuthResponse&gt; register(@Valid @RequestBody RegisterRequest registerRequest) {
-        try {
-<span class="nc" id="L36">            return ResponseEntity.ok(authService.register(registerRequest));</span>
-<span class="fc" id="L37">        } catch (BadRequestException | IllegalArgumentException e) {</span>
-<span class="fc" id="L38">            throw new BadRequestException(e.getMessage());</span>
-        }
+    @Operation(summary = &quot;Register user&quot;, description = &quot;Register a new user&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; register(@Valid @RequestBody RegisterRequest registerRequest) {
+<span class="fc" id="L38">        authService.register(registerRequest);</span>
+<span class="fc" id="L39">        return ResponseEntity.ok(Collections.singletonMap(&quot;message&quot;, &quot;Registration successful&quot;));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

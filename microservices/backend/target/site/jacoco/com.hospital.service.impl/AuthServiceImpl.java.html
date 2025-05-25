@@ -84,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public JwtAuthResponse register(RegisterRequest registerRequest) {
+    public void register(RegisterRequest registerRequest) {
         // Check if username or email already exists
 <span class="nc bnc" id="L89" title="All 2 branches missed.">        if (userRepository.existsByUsername(registerRequest.getUsername())) {</span>
 <span class="nc" id="L90">            throw new BadRequestException(&quot;Username is already taken&quot;);</span>
@@ -101,58 +101,18 @@ public class AuthServiceImpl implements AuthService {
 <span class="nc" id="L101">                .firstName(registerRequest.getFirstName())</span>
 <span class="nc" id="L102">                .lastName(registerRequest.getLastName())</span>
 <span class="nc" id="L103">                .role(registerRequest.getRoleEnum())</span>
-<span class="nc" id="L104">                .enabled(true)</span>
-<span class="nc" id="L105">                .build();</span>
+<span class="nc" id="L104">                .build();</span>
 
-<span class="nc" id="L107">        user = userRepository.save(user);</span>
+        // Save user
+<span class="nc" id="L107">        userRepository.save(user);</span>
 
-<span class="nc" id="L109">        Long doctorId = null;</span>
-<span class="nc" id="L110">        Long patientId = null;</span>
-
-        // Create domain entity (Doctor or Patient)
-<span class="nc bnc" id="L113" title="All 2 branches missed.">        if (user.getRole() == User.Role.DOCTOR) {</span>
-<span class="nc bnc" id="L114" title="All 4 branches missed.">            if (registerRequest.getSpecialization() == null || registerRequest.getDepartment() == null) {</span>
-<span class="nc" id="L115">                throw new BadRequestException(&quot;Specialization and department are required for doctor registration&quot;);</span>
-            }
-            
-<span class="nc" id="L118">            Doctor doctor = Doctor.builder()</span>
-<span class="nc" id="L119">                    .user(user)</span>
-<span class="nc" id="L120">                    .specialization(registerRequest.getSpecialization())</span>
-<span class="nc" id="L121">                    .department(registerRequest.getDepartment())</span>
-<span class="nc" id="L122">                    .available(true)</span>
-<span class="nc" id="L123">                    .build();</span>
-<span class="nc" id="L124">            doctor = doctorRepository.save(doctor);</span>
-<span class="nc" id="L125">            doctorId = doctor.getId();</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        } else if (user.getRole() == User.Role.PATIENT) {</span>
-<span class="nc" id="L127">            Patient patient = Patient.builder()</span>
-<span class="nc" id="L128">                    .user(user)</span>
-<span class="nc" id="L129">                    .build();</span>
-<span class="nc" id="L130">            patient = patientRepository.save(patient);</span>
-<span class="nc" id="L131">            patientId = patient.getId();</span>
+        // If user is a patient, create patient record
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (user.getRole() == User.Role.PATIENT) {</span>
+<span class="nc" id="L111">            Patient patient = Patient.builder()</span>
+<span class="nc" id="L112">                    .user(user)</span>
+<span class="nc" id="L113">                    .build();</span>
+<span class="nc" id="L114">            patientRepository.save(patient);</span>
         }
-
-<span class="nc" id="L134">        Authentication authentication = authenticationManager.authenticate(</span>
-                new UsernamePasswordAuthenticationToken(
-<span class="nc" id="L136">                        registerRequest.getUsername(),</span>
-<span class="nc" id="L137">                        registerRequest.getPassword()</span>
-                )
-        );
-
-<span class="nc" id="L141">        SecurityContextHolder.getContext().setAuthentication(authentication);</span>
-<span class="nc" id="L142">        String jwt = tokenProvider.generateToken(authentication);</span>
-
-<span class="nc" id="L144">        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();</span>
-
-<span class="nc" id="L146">        return JwtAuthResponse.builder()</span>
-<span class="nc" id="L147">                .token(jwt)</span>
-<span class="nc" id="L148">                .tokenType(&quot;Bearer&quot;)</span>
-<span class="nc" id="L149">                .username(userDetails.getUsername())</span>
-<span class="nc" id="L150">                .email(userDetails.getEmail())</span>
-<span class="nc" id="L151">                .role(User.Role.valueOf(userDetails.getAuthorities().iterator().next().getAuthority().replace(&quot;ROLE_&quot;, &quot;&quot;)))</span>
-<span class="nc" id="L152">                .userId(userDetails.getId())</span>
-<span class="nc" id="L153">                .doctorId(userDetails.getDoctorId())</span>
-<span class="nc" id="L154">                .patientId(userDetails.getPatientId())</span>
-<span class="nc" id="L155">                .build();</span>
-    }
+<span class="nc" id="L116">    }</span>
 } 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

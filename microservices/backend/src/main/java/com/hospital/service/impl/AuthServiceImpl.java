@@ -84,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public JwtAuthResponse register(RegisterRequest registerRequest) {
+    public void register(RegisterRequest registerRequest) {
         // Check if username or email already exists
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             throw new BadRequestException("Username is already taken");
@@ -101,37 +101,17 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
                 .role(registerRequest.getRoleEnum())
-                .enabled(true)
                 .build();
 
-        user = userRepository.save(user);
+        // Save user
+        userRepository.save(user);
 
-        // Create domain entity (Doctor or Patient)
-        if (user.getRole() == User.Role.DOCTOR) {
-            if (registerRequest.getSpecialization() == null || registerRequest.getDepartment() == null) {
-                throw new BadRequestException("Specialization and department are required for doctor registration");
-            }
-            
-            Doctor doctor = Doctor.builder()
-                    .user(user)
-                    .specialization(registerRequest.getSpecialization())
-                    .department(registerRequest.getDepartment())
-                    .available(true)
-                    .build();
-            doctor = doctorRepository.save(doctor);
-        } else if (user.getRole() == User.Role.PATIENT) {
+        // If user is a patient, create patient record
+        if (user.getRole() == User.Role.PATIENT) {
             Patient patient = Patient.builder()
                     .user(user)
                     .build();
             patientRepository.save(patient);
         }
-
-        // Return basic response without authentication
-        return JwtAuthResponse.builder()
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .userId(user.getId())
-                .build();
     }
 } 

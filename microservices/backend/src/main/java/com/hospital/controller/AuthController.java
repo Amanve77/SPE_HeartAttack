@@ -11,7 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -33,15 +33,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Register user", description = "Register new user")
+    @Operation(summary = "Register user", description = "Register a new user")
     public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        try {
-            authService.register(registerRequest);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Registration successful");
-            return ResponseEntity.ok(response);
-        } catch (BadRequestException | IllegalArgumentException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        authService.register(registerRequest);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Registration successful"));
     }
 }
