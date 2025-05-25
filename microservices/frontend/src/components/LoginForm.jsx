@@ -1,58 +1,83 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import API from '../services/api';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import API from '../services/api';
 
-export default function LoginForm() {
-  const { role } = useParams();
-  const navigate = useNavigate();
+export default function RegisterPatientForm() {
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErr('');
-    
+    setSuccess('');
+
     try {
-      const res = await API.post('/auth/login', {
+      const res = await API.post('/auth/register', {
+        username,
+        firstName,
+        lastName,
         email,
         password,
-        role: role.toUpperCase(),
+        role: 'PATIENT',
       });
-      
-      // Log the response for debugging
-      console.log('Login response:', res.data);
-      
-      // Store the complete token with Bearer prefix
-      const token = `${res.data.tokenType} ${res.data.token}`;
-      console.log('Storing token:', token);
-      localStorage.setItem('token', token);
-      console.log(role);
-      if (role.toUpperCase() === 'DOCTOR') {
-        localStorage.setItem('doctorId', res.data.doctorId);
-        navigate('/doctor/dashboard');
-      } else {
-        localStorage.setItem('patientId', res.data.patientId);
-        navigate('/patient/dashboard');
-      }
+
+      setSuccess('Registration successful! Redirecting to login...');
+      setTimeout(() => navigate('/login/patient'), 1500);
     } catch (error) {
-      console.error('Login error:', error);
-      setErr(error.response?.data?.message || 'Invalid Credentials or Role');
-    } finally {
-      setLoading(false);
+      const errorData = error.response?.data;
+      console.error("Registration error:", errorData);
+      setErr(
+        errorData?.message ||
+        JSON.stringify(errorData) ||
+        'Registration failed'
+      );
     }
   };
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow" style={{ minWidth: '350px' }}>
-        <h3 className="text-center mb-3">Login as {role.charAt(0).toUpperCase() + role.slice(1)}</h3>
+        <h3 className="text-center mb-3">Register as Patient</h3>
         {err && <div className="alert alert-danger">{err}</div>}
-
-        <form onSubmit={handleLogin}>
+        {success && <div className="alert alert-success">{success}</div>}
+        <form onSubmit={handleRegister}>
+          <div className="form-group mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Username"
+              value={username}
+              required
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="First Name"
+              value={firstName}
+              required
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Last Name"
+              value={lastName}
+              required
+              onChange={(e) => setLastName(e.target.value)}
+            />
+          </div>
           <div className="form-group mb-3">
             <input
               type="email"
@@ -61,7 +86,6 @@ export default function LoginForm() {
               value={email}
               required
               onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
             />
           </div>
           <div className="form-group mb-4">
@@ -72,32 +96,12 @@ export default function LoginForm() {
               value={password}
               required
               onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
             />
           </div>
-          <button 
-            type="submit" 
-            className="btn btn-primary w-100"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
+          <button type="submit" className="btn btn-primary w-100">
+            Register
           </button>
         </form>
-
-        {/* 👇 Render Register button only for patient role */}
-        {role === 'patient' && (
-          <div className="text-center mt-3">
-            <p className="mb-1">New user?</p>
-            <button
-              type="button"
-              className="btn btn-outline-secondary w-100"
-              onClick={() => navigate('/register/patient')}
-              disabled={loading}
-            >
-              Register as Patient
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
