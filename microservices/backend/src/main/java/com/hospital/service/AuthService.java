@@ -6,5 +6,5 @@ import com.hospital.dto.RegisterRequest;
 
 public interface AuthService {
     JwtAuthResponse login(LoginRequest loginRequest);
-    JwtAuthResponse register(RegisterRequest registerRequest);
+    void register(RegisterRequest registerRequest);
 } 

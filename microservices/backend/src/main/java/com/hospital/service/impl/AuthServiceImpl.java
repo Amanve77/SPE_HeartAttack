@@ -106,9 +106,6 @@ public class AuthServiceImpl implements AuthService {
 
         user = userRepository.save(user);
 
-        Long doctorId = null;
-        Long patientId = null;
-
         // Create domain entity (Doctor or Patient)
         if (user.getRole() == User.Role.DOCTOR) {
             if (registerRequest.getSpecialization() == null || registerRequest.getDepartment() == null) {
@@ -122,36 +119,19 @@ public class AuthServiceImpl implements AuthService {
                     .available(true)
                     .build();
             doctor = doctorRepository.save(doctor);
-            doctorId = doctor.getId();
         } else if (user.getRole() == User.Role.PATIENT) {
             Patient patient = Patient.builder()
                     .user(user)
                     .build();
-            patient = patientRepository.save(patient);
-            patientId = patient.getId();
+            patientRepository.save(patient);
         }
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        registerRequest.getUsername(),
-                        registerRequest.getPassword()
-                )
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
+        // Return basic response without authentication
         return JwtAuthResponse.builder()
-                .token(jwt)
-                .tokenType("Bearer")
-                .username(userDetails.getUsername())
-                .email(userDetails.getEmail())
-                .role(User.Role.valueOf(userDetails.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "")))
-                .userId(userDetails.getId())
-                .doctorId(userDetails.getDoctorId())
-                .patientId(userDetails.getPatientId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .userId(user.getId())
                 .build();
     }
 } 

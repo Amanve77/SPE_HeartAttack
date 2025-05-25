@@ -46,29 +46,29 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                    echo "Using kubeconfig at: $KUBECONFIG"
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         sh '''
+        //             echo "Using kubeconfig at: $KUBECONFIG"
 
-                    # Create namespace
-                    kubectl apply -f k8s/namespace.yaml
+        //             # Create namespace
+        //             kubectl apply -f k8s/namespace.yaml
 
-                    kubectl apply -f k8s/mysql/mysql-secret.yaml
+        //             kubectl apply -f k8s/mysql/mysql-secret.yaml
                     
-                    kubectl apply -f k8s/mysql/mysql-pvc.yaml
+        //             kubectl apply -f k8s/mysql/mysql-pvc.yaml
 
-                    # Deploy MySQL first
-                    kubectl apply -f k8s/mysql/
+        //             # Deploy MySQL first
+        //             kubectl apply -f k8s/mysql/
                     
-                    echo "Waiting for MySQL pod to be ready..."
-                    kubectl wait --for=condition=ready pod -l app=mysql -n demo-basic --timeout=120s
+        //             echo "Waiting for MySQL pod to be ready..."
+        //             kubectl wait --for=condition=ready pod -l app=mysql -n demo-basic --timeout=120s
                     
-                    # Deploy backend after MySQL is ready
-                    kubectl apply -f k8s/backend/
-                '''
-            }
-        }
+        //             # Deploy backend after MySQL is ready
+        //             kubectl apply -f k8s/backend/
+        //         '''
+        //     }
+        // }
     }
 
     post {

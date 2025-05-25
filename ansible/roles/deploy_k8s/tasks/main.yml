@@ -3,6 +3,22 @@
   shell: kubectl create namespace demo-basic --dry-run=client -o yaml | kubectl apply -f -
   ignore_errors: true
 
+- name: Delete existing MySQL pod
+  shell: kubectl delete pod mysql-deployment-0 -n demo-basic
+  ignore_errors: true
+
+- name: Delete existing Backend pod
+  shell: kubectl delete pod backend-deployment-0 -n demo-basic
+  ignore_errors: true
+
+- name: Delete existing ML Service pod
+  shell: kubectl delete pod ml-deployment-0 -n demo-basic
+  ignore_errors: true
+
+- name: Delete existing Frontend pod
+  shell: kubectl delete pod frontend-deployment-0 -n demo-basic
+  ignore_errors: true
+
 - name: Deploy MySQL
   shell: kubectl apply -f ../k8s/mysql/mysql-deployment.yaml -n demo-basic
 

@@ -37,15 +37,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                    echo "Using kubeconfig at: $KUBECONFIG"
-                    kubectl apply -f k8s/namespace.yaml
-                    kubectl apply -f k8s/ml/
-                '''
-            }
-        }
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         sh '''
+        //             echo "Using kubeconfig at: $KUBECONFIG"
+        //             kubectl apply -f k8s/namespace.yaml
+        //             kubectl apply -f k8s/ml/
+        //         '''
+        //     }
+        // }
     }
 
     post {

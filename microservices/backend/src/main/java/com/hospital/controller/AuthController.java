@@ -11,6 +11,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:3000}")
@@ -30,10 +33,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Register user", description = "Register new user and return JWT token")
-    public ResponseEntity<JwtAuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    @Operation(summary = "Register user", description = "Register new user")
+    public ResponseEntity<Map<String, String>> register(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
-            return ResponseEntity.ok(authService.register(registerRequest));
+            authService.register(registerRequest);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Registration successful");
+            return ResponseEntity.ok(response);
         } catch (BadRequestException | IllegalArgumentException e) {
             throw new BadRequestException(e.getMessage());
         }
