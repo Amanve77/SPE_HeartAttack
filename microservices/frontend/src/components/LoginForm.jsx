@@ -27,7 +27,7 @@ export default function RegisterPatientForm() {
         password,
         role: 'PATIENT',
       });
-
+      console.log("Registration response:", res.data);
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login/patient'), 1500);
     } catch (error) {
