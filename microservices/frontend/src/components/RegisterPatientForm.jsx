@@ -75,10 +75,23 @@ export default function RegisterPatientForm() {
       navigate('/login/patient');
     } catch (error) {
       console.error("Registration error:", error.response?.data);
-      const errorMsg = error.response?.data?.message || 
-                      error.response?.data?.error || 
-                      'Registration failed. Please try again.';
+      let errorMsg;
+      
+      if (error.response?.status === 401) {
+        errorMsg = 'Invalid credentials. Please check your information.';
+      } else if (error.response?.status === 409) {
+        errorMsg = 'Email or username already exists. Please try another.';
+      } else if (error.response?.data?.message) {
+        errorMsg = error.response?.data?.message;
+      } else if (error.response?.data?.error) {
+        errorMsg = error.response?.data?.error;
+      } else {
+        errorMsg = 'Registration failed. Please try again.';
+      }
+      
       setErr(errorMsg);
+      // Ensure the error message stays visible
+      window.scrollTo(0, 0);
     } finally {
       setLoading(false);
     }

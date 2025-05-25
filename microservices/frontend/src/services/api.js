@@ -16,7 +16,10 @@ API.interceptors.request.use((req) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't redirect for auth routes (login, register)
+    const isAuthRoute = error.config.url.includes('/auth/');
+    
+    if (error.response?.status === 401 && !isAuthRoute) {
       // Clear token and redirect to login if unauthorized
       localStorage.clear();
       window.location.href = '/';
