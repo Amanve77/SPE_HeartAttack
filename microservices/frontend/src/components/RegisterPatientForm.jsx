@@ -4,7 +4,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import API from '../services/api';
 
 export default function RegisterPatientForm() {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
@@ -17,10 +19,12 @@ export default function RegisterPatientForm() {
     setSuccess('');
     try {
       const res = await API.post('/auth/register', {
-        name,
+        username,
+        firstName,
+        lastName,
         email,
         password,
-        role: 'patient', // Role is locked in backend too
+        role: 'PATIENT', // Role is locked in backend too
       });
 
       localStorage.setItem('token', res.data.token);
@@ -28,7 +32,8 @@ export default function RegisterPatientForm() {
       setSuccess('Registration successful! Redirecting...');
       setTimeout(() => navigate('/patient/dashboard'), 1500);
     } catch (error) {
-      setErr(error.response?.data?.error || 'Registration failed');
+      const errorMsg = error.response?.data?.error || 'Registration failed';
+      setErr(errorMsg);
     }
   };
 
@@ -43,10 +48,30 @@ export default function RegisterPatientForm() {
             <input
               type="text"
               className="form-control"
-              placeholder="Full Name"
-              value={name}
+              placeholder="Username"
+              value={username}
               required
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="First Name"
+              value={firstName}
+              required
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+          <div className="form-group mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Last Name"
+              value={lastName}
+              required
+              onChange={(e) => setLastName(e.target.value)}
             />
           </div>
           <div className="form-group mb-3">
